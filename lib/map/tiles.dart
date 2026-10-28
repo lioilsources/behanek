@@ -39,7 +39,18 @@ Widget attribution(MapLayer layer) {
       : layer == MapLayer.satellite
           ? '© Esri, Maxar, Earthstar Geographics'
           : '© OpenStreetMap, SRTM | © OpenTopoMap (CC-BY-SA)';
-  return SimpleAttributionWidget(source: Text(text, style: const TextStyle(fontSize: 11)));
+  // Vlastní řádek místo SimpleAttributionWidget: ten přidává „flutter_map | ©“ a na užší
+  // mapě (živá mapa v Běhu) přetekl, protože text nesmí zalomit.
+  return Align(
+    alignment: Alignment.bottomRight,
+    child: ColoredBox(
+      color: const Color(0xCC0B0B0B),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: Text(text, style: const TextStyle(fontSize: 11, color: Colors.white70)),
+      ),
+    ),
+  );
 }
 
 List<LatLng> toLatLng(List<TrackPt> pts) => [for (final p in pts) LatLng(p.lat, p.lon)];
