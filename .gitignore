@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Podpis a tajné klíče — jen v GitHub secrets
+android/key.properties
+android/app/*.keystore
+*.p12
+*.mobileprovision
+AuthKey_*.p8
+
+# Vygenerované kandidáty ikony (velké PNG), vybraná ikona jde do assets/icon/
+tools/appicon/output/
+
+# Výběrová stránka se skládá z output/ — v gitu jen šablona
+tools/appicon/sheet/img/
+tools/appicon/sheet/out.html

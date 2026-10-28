@@ -1,0 +1,84 @@
+name: Release Android
+
+# Tag v1.2.3 → AAB + APK do GitHub Release, APK testerům přes Firebase App Distribution.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build & App Distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Verze z tagu
+        run: |
+          BASE="${GITHUB_REF_NAME#v}"
+          echo "$BASE" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' || BASE=$(grep '^version:' pubspec.yaml | sed -E 's/^version: ([0-9.]+).*/\1/')
+          NEW="${BASE}+${{ github.run_number }}"
+          sed -i -E "s/^version: .*/version: ${NEW}/" pubspec.yaml
+          echo "Build version: ${NEW}"
+
+      - name: Keystore a key.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo -n "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode --ignore-garbage > android/app/release.keystore
+          printf "storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=release.keystore\n" \
+            "$KEYSTORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > android/key.properties
+
+      - name: Build AAB a APK
+        env:
+          MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
+        run: |
+          flutter build appbundle --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY"
+          flutter build apk --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY"
+
+      - name: Ověřit podpis APK
+        run: |
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs "$APK" | head -5
+          # Debug podpis by Play i aktualizace u testerů odmítly.
+          if $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs "$APK" | grep -q "CN=Android Debug"; then
+            echo "::error::APK je podepsané debug klíčem — chybí keystore secrets"; exit 1
+          fi
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/flutter-apk/app-release.apk
+          name: Běhánek ${{ github.ref_name }}
+          prerelease: true
+
+      - name: Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          groups: testeri
+          releaseNotes: "Běhánek ${{ github.ref_name }} (build ${{ github.run_number }})"
+          file: build/app/outputs/flutter-apk/app-release.apk

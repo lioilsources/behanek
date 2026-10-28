@@ -1,0 +1,196 @@
+<title>Běhánek ikona aplikace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky dock with the current pick on a phone home screen at real size, then one band per concept with its variants as iOS-masked tiles. Single dark look, same as the app. */
+:root {
+  --ground: #0b0b0b;
+  --panel: #151714;
+  --line: #2a2e27;
+  --text: #f2f5ee;
+  --dim: #98a08f;
+  --lime: #c6ff00;
+  --star: #ffb020;
+  --err: #ff6b5b;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  color-scheme: dark;
+}
+body { background: var(--ground); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.intro { padding-block: 26px 14px; display: grid; gap: 8px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 5vw, 44px); line-height: 1; margin: 0; text-transform: uppercase; letter-spacing: .02em; text-wrap: balance; }
+h1 span { color: var(--lime); }
+.intro p { margin: 0; color: var(--dim); max-width: 68ch; }
+.intro b { color: var(--text); }
+
+.dock { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.dock .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; padding-block: 10px; }
+.home { display: flex; gap: 14px; align-items: flex-end; padding: 10px 14px; border-radius: 14px; background: linear-gradient(160deg, #3b5d4a, #23384f 55%, #4a3b2a); }
+.app { display: grid; justify-items: center; gap: 3px; width: 64px; }
+.app i { width: 60px; height: 60px; border-radius: 13.4px; background: #333 center / cover no-repeat; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.app i.round { border-radius: 50%; }
+.app small { font-size: 11px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); white-space: nowrap; }
+.app.dummy i { background: linear-gradient(135deg, #f5f5f5, #b9c0c9); }
+.app.dummy:nth-child(3) i { background: linear-gradient(135deg, #ff5e57, #c81d25); }
+.app.dummy:nth-child(4) i { background: linear-gradient(135deg, #38bdf8, #1d4ed8); }
+.dock-info { display: grid; gap: 2px; min-width: 0; }
+.dock-info strong { font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: .02em; }
+.status { font-size: 13px; color: var(--dim); }
+.status.ok { color: var(--lime); } .status.err { color: var(--err); }
+.spacer { flex: 1; }
+.copy { background: none; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: 600 13px var(--body); cursor: pointer; }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+main { display: grid; gap: 18px; padding-block: 20px 24px; }
+.concept { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 12px; min-width: 0; }
+.concept h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: .02em; }
+.concept h2 code { font: 500 12px var(--mono); color: var(--dim); margin-left: 8px; }
+.concept p { margin: -6px 0 0; color: var(--dim); font-size: 14px; max-width: 80ch; }
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.tile { display: grid; gap: 6px; justify-items: center; min-width: 0; }
+.tile button.img { width: 100%; max-width: 100%; aspect-ratio: 1; border-radius: 22.4%; border: 3px solid transparent; padding: 0; cursor: pointer; background: #000 center / cover no-repeat; transition: transform .12s; }
+.tile button.img:hover { transform: scale(1.03); }
+.tile button.img[aria-pressed="true"] { border-color: var(--lime); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 35%, transparent); }
+.tile .meta { display: flex; gap: 8px; align-items: center; font: 500 12px var(--mono); color: var(--dim); }
+.tile .fav { background: none; border: 1px solid var(--line); border-radius: 99px; color: var(--dim); font-size: 13px; line-height: 1; padding: 3px 8px; cursor: pointer; }
+.tile .fav[aria-pressed="true"] { color: var(--star); border-color: var(--star); }
+.tile .warn { font-size: 12px; color: var(--star); text-align: center; }
+.tile .small { display: flex; gap: 6px; align-items: center; }
+.tile .small i { width: 29px; height: 29px; border-radius: 6.5px; background: #000 center / cover no-repeat; }
+.tile .small i.round { border-radius: 50%; }
+.note-box { display: grid; gap: 6px; padding-block: 0 60px; }
+.note-box label { font-size: 13px; color: var(--dim); }
+.note-box textarea { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 14px var(--body); min-height: 70px; resize: vertical; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .home .app.dummy:nth-child(n+3) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tile button.img { transition: none; } }
+</style>
+
+<div class="dock"><div class="wrap">
+  <div class="home" aria-label="Náhled na ploše telefonu">
+    <div class="app"><i id="dock-ios"></i><small>Běhánek</small></div>
+    <div class="app"><i id="dock-android" class="round"></i><small>Android</small></div>
+    <div class="app dummy"><i></i><small>Hodiny</small></div>
+    <div class="app dummy"><i></i><small>Počasí</small></div>
+  </div>
+  <div class="dock-info">
+    <strong id="pick-label">Nic nevybráno</strong>
+    <span id="status" class="status">Načítám…</span>
+  </div>
+  <span class="spacer"></span>
+  <button class="copy" id="copy">Zkopírovat výběr</button>
+</div></div>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Ikona <span>Běhánka</span></h1>
+    <p>Klikni na obrázek a vyber <b>jednu</b> ikonu. Nahoře ji hned uvidíš na ploše telefonu ve skutečné velikosti: vlevo s maskou iOS, vedle s kruhovou maskou Androidu. Hvězdičkou <b>★</b> si označ další kandidáty, ze kterých udělám další kolo variant.</p>
+    <p>Všechny varianty mají stejné zadání: tmavé pozadí jako appka, limetková jako jediná barva, žádný text. Varianty s <b>vlastním rámečkem</b> by na ploše měly rámeček dvakrát; když se ti motiv líbí, hvězdičkuj ho a v dalším kole ho udělám bez rámečku. Výběr se ukládá průběžně a Claude si ho přečte sám.</p>
+  </header>
+  <main id="list"></main>
+  <div class="note-box">
+    <label for="note">Poznámka pro další kolo (co změnit, co zachovat)</label>
+    <textarea id="note" placeholder="Třeba: silueta, ale tlustší, bez záře, víc vzduchu kolem…"></textarea>
+  </div>
+</div>
+
+<script>
+const CONCEPTS = __CONCEPTS__;
+const N = 6;
+// Co je na variantě vidět na první pohled a ve storu by vadilo.
+const FRAME = "má vlastní rámeček";
+const WARN = {
+  bota_v2: "logo Nike, nelze", bota_v5: FRAME, duch_v4: FRAME,
+  satelit_v1: FRAME, satelit_v2: FRAME, satelit_v4: FRAME, satelit_v5: FRAME, satelit_v6: FRAME,
+  silueta_v1: FRAME, silueta_v3: FRAME, sluchatko_v5: FRAME, sluchatko_v6: FRAME,
+  stopa_v1: FRAME, stopa_v4: FRAME,
+};
+let state = { pick: null, favs: [], note: "" };
+let docRef = null;
+const $ = id => document.getElementById(id);
+
+const src = code => `img/${code}.jpg`;
+function label(code) {
+  if (!code) return "Nic nevybráno";
+  const [cid, v] = code.split(/_v(?=\d+$)/);
+  const c = CONCEPTS.find(c => c.id === cid);
+  return `${c ? c.title : cid} · v${v}`;
+}
+
+function tile(code) {
+  const t = document.createElement("div"); t.className = "tile";
+  const b = document.createElement("button"); b.className = "img";
+  b.style.backgroundImage = `url(${src(code)})`;
+  b.setAttribute("aria-pressed", String(state.pick === code));
+  b.setAttribute("aria-label", "Vybrat " + label(code));
+  b.onclick = () => { state.pick = state.pick === code ? null : code; changed(); };
+  const meta = document.createElement("div"); meta.className = "meta";
+  const name = document.createElement("span"); name.textContent = "v" + code.split("_v").pop();
+  const small = document.createElement("span"); small.className = "small";
+  small.innerHTML = `<i style="background-image:url(${src(code)})"></i><i class="round" style="background-image:url(${src(code)})"></i>`;
+  const f = document.createElement("button"); f.className = "fav";
+  const on = state.favs.includes(code);
+  f.textContent = "★"; f.setAttribute("aria-pressed", String(on));
+  f.setAttribute("aria-label", "Kandidát " + label(code));
+  f.onclick = () => { state.favs = on ? state.favs.filter(x => x !== code) : [...state.favs, code]; changed(); };
+  meta.append(name, small, f);
+  t.append(b, meta);
+  if (WARN[code]) { const w = document.createElement("span"); w.className = "warn"; w.textContent = WARN[code]; t.append(w); }
+  return t;
+}
+
+function render() {
+  const list = $("list"); list.textContent = "";
+  for (const c of CONCEPTS) {
+    const s = document.createElement("section"); s.className = "concept";
+    const h = document.createElement("h2"); h.textContent = c.title;
+    const code = document.createElement("code"); code.textContent = c.id; h.append(code);
+    const p = document.createElement("p"); p.textContent = c.about;
+    const g = document.createElement("div"); g.className = "grid";
+    for (let i = 1; i <= N; i++) g.append(tile(`${c.id}_v${i}`));
+    s.append(h, p, g); list.append(s);
+  }
+  const pk = state.pick;
+  $("pick-label").textContent = label(pk) + (state.favs.length ? ` · ★ ${state.favs.length}` : "");
+  for (const id of ["dock-ios", "dock-android"]) $(id).style.backgroundImage = pk ? `url(${src(pk)})` : "";
+}
+
+let timer = null;
+function changed() {
+  render();
+  try { localStorage.setItem("behanek-icon-pick", JSON.stringify(state)); } catch {}
+  if (!docRef) { setStatus("Ukládá se jen v tomto prohlížeči. Pošli výběr tlačítkem Zkopírovat.", ""); return; }
+  setStatus("Ukládám…", "");
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    try { await docRef.set({ ...state, updatedAt: new Date().toISOString() }); setStatus("Uloženo, Claude to uvidí.", "ok"); }
+    catch (e) { setStatus("Uložit se nepodařilo (" + (e && e.code || "chyba") + "). Použij Zkopírovat výběr.", "err"); }
+  }, 500);
+}
+function setStatus(t, c) { const s = $("status"); s.textContent = t; s.className = "status " + c; }
+
+$("note").oninput = e => { state.note = e.target.value; changed(); };
+$("copy").onclick = () => {
+  const text = `ikona: ${state.pick || "-"}\nkandidáti: ${state.favs.join(", ") || "-"}\npoznámka: ${state.note || "-"}`;
+  const done = () => setStatus("Zkopírováno, vlož to do chatu.", "ok");
+  try { navigator.clipboard.writeText(text).then(done, () => setStatus(text, "")); } catch { setStatus(text, ""); }
+};
+
+try { const s = JSON.parse(localStorage.getItem("behanek-icon-pick") || "null"); if (s) state = { ...state, ...s }; } catch {}
+$("note").value = state.note || "";
+render();
+
+(async () => {
+  const db = window.claude ? await window.claude.use("db") : null;
+  if (!db) { setStatus("Ukládá se jen v tomto prohlížeči. Pošli výběr tlačítkem Zkopírovat.", ""); return; }
+  docRef = db.doc("icons/selection");
+  try {
+    const snap = await docRef.get();
+    if (snap.exists) { const d = snap.data(); state = { pick: d.pick || null, favs: d.favs || [], note: d.note || "" }; $("note").value = state.note; render(); }
+    setStatus(state.pick ? "Načten uložený výběr." : "Připraveno. Výběr se ukládá sám.", "ok");
+  } catch (e) { setStatus("Uložený výběr se nenačetl (" + (e && e.code || "chyba") + ").", "err"); }
+})();
+</script>
