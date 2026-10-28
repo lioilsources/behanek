@@ -13,7 +13,8 @@ class Purchases extends ChangeNotifier {
   final AppSettings settings;
   Purchases(this.settings);
 
-  final _iap = InAppPurchase.instance;
+  // Líně: plugin se nesmí probudit dřív než init() (a v testech vůbec).
+  InAppPurchase get _iap => InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _sub;
   ProductDetails? product;
   bool available = false;

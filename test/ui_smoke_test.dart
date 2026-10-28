@@ -44,7 +44,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Odemknout import'), findsOneWidget);
 
+    // Drift ruší streamy přes časovače ve falešném čase testu — nechat je doběhnout,
+    // jinak by close() čekalo věčně.
     await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
     await tester.runAsync(db.close);
   });
 }
