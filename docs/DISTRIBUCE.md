@@ -36,9 +36,9 @@ Hodnoty GitHub nejde zkopírovat z jiného repa — nastavit znovu (`gh secret s
 
 | Secret | Kde ho vzít |
 |---|---|
-| `IOS_PROVISION_PROFILE_BASE64` | developer.apple.com → Profiles → App Store profil pro `cz.ol1n.behanek` → `base64 -i profil.mobileprovision` |
+| `IOS_PROVISION_PROFILE_BASE64` | developer.apple.com → Profiles → App Store profil pro `com.ol1n.behanek` → `base64 -i profil.mobileprovision` |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | nový upload klíč (viz níže); keystore zálohovat, bez něj nejde vydat aktualizace |
-| `FIREBASE_ANDROID_APP_ID` | Firebase konzole → přidat Android appku `cz.ol1n.behanek` → App ID `1:…:android:…` |
+| `FIREBASE_ANDROID_APP_ID` | Firebase konzole → přidat Android appku `com.ol1n.behanek` → App ID `1:…:android:…` |
 | `MAPY_API_KEY` | developer.mapy.com — bez něj build použije vývojové dlaždice, které do storu nesmí |
 
 ```
@@ -48,10 +48,10 @@ base64 -i behanek-upload.keystore | gh secret set ANDROID_KEYSTORE_BASE64 -R lio
 
 ## Jednorázově ve storech
 
-1. **App Store Connect:** založit appku s bundle id `cz.ol1n.behanek` (App ID s capability In-App Purchase),
+1. **App Store Connect:** založit appku s bundle id `com.ol1n.behanek` (App ID s capability In-App Purchase),
    název „Běhánek“, produkt `gpx_import` (non-consumable, 0,99). V TestFlightu přidat kamaráda jako
    interního nebo externího testera.
-2. **Firebase:** Android appka `cz.ol1n.behanek` v projektu, skupina testerů `testeri`.
+2. **Firebase:** Android appka `com.ol1n.behanek` v projektu, skupina testerů `testeri`.
 3. **Play Console** (až pro veřejné vydání): appka, Play App Signing, produkt `gpx_import`, AAB z Release.
 
 ## Podpis iOS

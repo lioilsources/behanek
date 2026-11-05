@@ -22,7 +22,7 @@ done = 0
 def patch(m):
     global done
     body = m.group(2)
-    if "PRODUCT_BUNDLE_IDENTIFIER = cz.ol1n.behanek;" not in body:
+    if "PRODUCT_BUNDLE_IDENTIFIER = com.ol1n.behanek;" not in body:
         return m.group(0)
     for key in ("CODE_SIGN_STYLE", "CODE_SIGN_IDENTITY", "PROVISIONING_PROFILE_SPECIFIER"):
         body = re.sub(rf"\n\s*\"?{key}[^\n]*", "", body)

@@ -60,7 +60,7 @@ jobs:
           NAME=$(echo "$DECODED" | plutil -extract Name raw -)
           APPID=$(echo "$DECODED" | plutil -extract Entitlements.application-identifier raw - | sed 's/^[^.]*\.//')
           echo "Profil: $NAME ($UUID), bundle $APPID, platí do $(echo "$DECODED" | plutil -extract ExpirationDate raw -)"
-          [ "$APPID" = "cz.ol1n.behanek" ] || { echo "::error::profil je pro $APPID, ne cz.ol1n.behanek"; exit 1; }
+          [ "$APPID" = "com.ol1n.behanek" ] || { echo "::error::profil je pro $APPID, ne com.ol1n.behanek"; exit 1; }
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID".mobileprovision
           echo "PROFILE_NAME=$NAME" >> $GITHUB_ENV
 
@@ -88,7 +88,7 @@ jobs:
           TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
         run: |
           /usr/libexec/PlistBuddy -c "Set :teamID $TEAM_ID" ios/ExportOptions.plist
-          /usr/libexec/PlistBuddy -c "Set :provisioningProfiles:cz.ol1n.behanek $PROFILE_NAME" ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c "Set :provisioningProfiles:com.ol1n.behanek $PROFILE_NAME" ios/ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/Runner.xcarchive \
             -exportOptionsPlist ios/ExportOptions.plist \

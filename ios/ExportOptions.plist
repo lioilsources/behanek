@@ -10,7 +10,7 @@
     <string>manual</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>cz.ol1n.behanek</key>
+        <key>com.ol1n.behanek</key>
         <string>REPLACED_IN_CI</string>
     </dict>
     <key>uploadSymbols</key>

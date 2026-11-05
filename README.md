@@ -30,7 +30,7 @@ lib/ui/      history, run, detail, trim, settings, import
 - **Mapy (ot. 7):** Mapy.com REST API (`aerial` + `outdoor`) — obojí z jednoho zdroje, free tarif,
   klíč přes `--dart-define=MAPY_API_KEY`. Bez klíče fallback OpenTopoMap/Esri, který **není** pro
   store (licenční podmínky). Mapy.com vyžaduje atribuci a logo — logo ještě doplnit.
-- **Bundle id:** `cz.ol1n.behanek` (Android i iOS), zobrazovaný název „Běhánek“. iOS min. 15.0.
+- **Bundle id:** `com.ol1n.behanek` (Android i iOS), zobrazovaný název „Běhánek“. iOS min. 15.0.
 - **IAP:** produkt `gpx_import` (non-consumable) — založit v App Store Connect i Play Console.
   Bez nákupu import ukáže náhled 1 souboru; export je vždy zdarma.
 - **Odolnost:** body se zapisují do DB průběžně (každých ~10 s); běh přerušený pádem se při dalším
