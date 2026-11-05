@@ -152,7 +152,10 @@ void main() {
   late _StillRun run;
   final ids = <String, int>{};
 
-  final today = DateTime.now();
+  // Nejnovější běh je 26. v měsíci; před 27. se proto „aktuální“ měsíc posune o jeden zpět,
+  // jinak by historie ukazovala běhy v budoucnu.
+  final now = DateTime.now();
+  final today = now.day > 26 ? now : DateTime(now.year, now.month - 1, 28);
   DateTime day(int monthsBack, int d, int h, int min) => DateTime(today.year, today.month - monthsBack, d, h, min);
 
   // Tři měsíce běhání po Praze, tempo se pomalu zlepšuje.
