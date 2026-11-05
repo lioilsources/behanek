@@ -15,7 +15,7 @@ TileLayer tileLayer(MapLayer layer) {
     final set = layer == MapLayer.satellite ? 'aerial' : 'outdoor';
     return TileLayer(
       urlTemplate: 'https://api.mapy.com/v1/maptiles/$set/256/{z}/{x}/{y}?apikey=$mapyApiKey',
-      userAgentPackageName: 'cz.ol1n.behanek',
+      userAgentPackageName: 'com.ol1n.behanek',
       maxNativeZoom: 19,
     );
   }
@@ -23,12 +23,12 @@ TileLayer tileLayer(MapLayer layer) {
       ? TileLayer(
           urlTemplate:
               'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          userAgentPackageName: 'cz.ol1n.behanek',
+          userAgentPackageName: 'com.ol1n.behanek',
           maxNativeZoom: 19,
         )
       : TileLayer(
           urlTemplate: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'cz.ol1n.behanek',
+          userAgentPackageName: 'com.ol1n.behanek',
           maxNativeZoom: 17,
         );
 }
