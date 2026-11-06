@@ -14,7 +14,7 @@ TestFlightu / App Distribution, GitHub Release nevznikne.
 |---|---|---|
 | `ci.yml` | každý push / PR | `flutter analyze` + `flutter test` |
 | `release-ios.yml` | tag `v*` | IPA + dSYM do Release, upload do TestFlightu |
-| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `testeri` ve Firebase |
+| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `Alfa` ve Firebase |
 
 Verze buildu = tag bez `v` + číslo běhu (`v0.2.0` → `0.2.0+17`).
 
@@ -51,7 +51,7 @@ base64 -i behanek-upload.keystore | gh secret set ANDROID_KEYSTORE_BASE64 -R lio
 1. **App Store Connect:** založit appku s bundle id `com.ol1n.behanek` (App ID s capability In-App Purchase),
    název „Běhánek“, produkt `gpx_import` (non-consumable, 0,99). V TestFlightu přidat kamaráda jako
    interního nebo externího testera.
-2. **Firebase:** Android appka `com.ol1n.behanek` v projektu, skupina testerů `testeri`.
+2. **Firebase:** Android appka `com.ol1n.behanek` v projektu, skupina testerů s aliasem `Alfa` (stejná jako u ostatních appek, viz šablony v repu Distribution).
 3. **Play Console** (až pro veřejné vydání): appka, Play App Signing, produkt `gpx_import`, AAB z Release.
 
 ## Podpis iOS

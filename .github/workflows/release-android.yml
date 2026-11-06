@@ -79,6 +79,6 @@ jobs:
         with:
           appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
-          groups: testeri
+          groups: Alfa
           releaseNotes: "Běhánek ${{ github.ref_name }} (build ${{ github.run_number }})"
           file: build/app/outputs/flutter-apk/app-release.apk
