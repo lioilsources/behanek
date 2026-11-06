@@ -4,17 +4,22 @@ import 'package:latlong2/latlong.dart';
 
 import '../core/settings.dart';
 import '../core/track.dart';
+import '../l10n/l10n.dart';
 
 /// Klíč k Mapy.com (satelit + turistická z jednoho zdroje, free tarif).
 /// Build: `flutter run --dart-define=MAPY_API_KEY=...`
 /// Bez klíče: OpenTopoMap + Esri World Imagery — jen pro vývoj, ne pro store.
 const mapyApiKey = String.fromEnvironment('MAPY_API_KEY');
 
+const _mapyLangs = {'cs', 'de', 'el', 'en', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'ru', 'sk', 'tr', 'uk'};
+
 TileLayer tileLayer(MapLayer layer) {
   if (mapyApiKey.isNotEmpty) {
     final set = layer == MapLayer.satellite ? 'aerial' : 'outdoor';
+    // Popisky v mapě v jazyce appky, pokud ho Mapy.com umí.
+    final lang = _mapyLangs.contains(appLocale.languageCode) ? appLocale.languageCode : 'en';
     return TileLayer(
-      urlTemplate: 'https://api.mapy.com/v1/maptiles/$set/256/{z}/{x}/{y}?apikey=$mapyApiKey',
+      urlTemplate: 'https://api.mapy.com/v1/maptiles/$set/256/{z}/{x}/{y}?lang=$lang&apikey=$mapyApiKey',
       userAgentPackageName: 'com.ol1n.behanek',
       maxNativeZoom: 19,
     );
