@@ -29,11 +29,19 @@ class _SlideToStopState extends State<SlideToStop> {
         ),
         child: Stack(
           children: [
-            Center(
-              child: Opacity(
-                opacity: (1 - _x / max).clamp(0, 1),
-                child: Text(widget.label ?? context.l.run_slideToStop,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+            // Popisek jen vpravo od knoflíku; delší překlady se zmenší.
+            Padding(
+              padding: const EdgeInsets.only(left: _h, right: 20),
+              child: Center(
+                child: Opacity(
+                  opacity: (1 - _x / max).clamp(0, 1),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(widget.label ?? context.l.run_slideToStop,
+                        maxLines: 1,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                  ),
+                ),
               ),
             ),
             Positioned(
