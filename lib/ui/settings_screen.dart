@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/settings.dart';
 import '../core/units.dart';
 import '../export/share.dart';
+import '../l10n/l10n.dart';
 import '../pacer/cue.dart';
 import 'app.dart';
 
@@ -14,50 +15,66 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = App.of(context);
     final st = s.settings;
+    final l = context.l;
     return Scaffold(
-      appBar: AppBar(title: const Text('Nastavení')),
+      appBar: AppBar(title: Text(l.settings_title)),
       body: ListenableBuilder(
         listenable: st,
         builder: (context, _) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _choice<DistanceUnit>('Jednotky', DistanceUnit.values, st.unit, (v) => v.label,
+            _choice<DistanceUnit>(l.settings_units, DistanceUnit.values, st.unit, (v) => v.label,
                 (v) => st.set('unit', v, () => st.unit = v)),
-            _choice<CueLang>('Jazyk hlasu', CueLang.values, st.cueLang,
-                (v) => v == CueLang.cs ? 'Čeština' : 'English',
-                (v) => st.set('cueLang', v, () => st.cueLang = v)),
+            // 15 jazyků se do segmentů nevejde.
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.settings_voiceLanguage, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                  DropdownButton<CueLang>(
+                    isExpanded: true,
+                    value: st.cueLang,
+                    items: [
+                      for (final v in CueLang.values)
+                        DropdownMenuItem(value: v, child: Text(v.nativeName, style: const TextStyle(fontSize: 18))),
+                    ],
+                    onChanged: (v) => v == null ? null : st.set('cueLang', v, () => st.cueLang = v),
+                  ),
+                ],
+              ),
+            ),
             _choice<CueMode>(
-                'Hlášení',
+                l.settings_cues,
                 CueMode.values,
                 st.cueMode,
                 (v) => switch (v) {
-                      CueMode.voice => 'Hlas',
-                      CueMode.tones => 'Tóny',
-                      CueMode.both => 'Obojí',
-                      CueMode.off => 'Nic',
+                      CueMode.voice => l.settings_cueVoice,
+                      CueMode.tones => l.settings_cueTones,
+                      CueMode.both => l.settings_cueBoth,
+                      CueMode.off => l.settings_cueOff,
                     },
                 (v) => st.set('cueMode', v, () => st.cueMode = v)),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text('Tóny: dva krátké = zrychli, jeden dlouhý = zpomal, ticho = v plánu.',
-                  style: TextStyle(color: Colors.white60)),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(l.settings_tonesHelp, style: const TextStyle(color: Colors.white60)),
             ),
-            _choice<int>('Interval hlášení', AppSettings.cueIntervals, st.cueIntervalS,
+            _choice<int>(l.settings_cueInterval, AppSettings.cueIntervals, st.cueIntervalS,
                 (v) => v < 60 ? '$v s' : '${v ~/ 60} min',
                 (v) => st.set('cueIntervalS', v, () => st.cueIntervalS = v)),
-            _choice<PacerTarget>('Cíl podle formy', PacerTarget.values, st.pacerTarget,
-                (v) => v == PacerTarget.hold ? 'Jen držet' : 'O 2 % rychleji',
+            _choice<PacerTarget>(l.settings_pacerGoal, PacerTarget.values, st.pacerTarget,
+                (v) => v == PacerTarget.hold ? l.settings_pacerHold : l.settings_pacerImprove,
                 (v) => st.set('pacerTarget', v, () => st.pacerTarget = v)),
-            _switch('Auto-pauza při zastavení', st.autoPause,
+            _switch(l.settings_autoPause, st.autoPause,
                 (v) => st.set('autoPause', v, () => st.autoPause = v)),
-            _switch('Metronom kadence', st.metronome,
+            _switch(l.settings_metronome, st.metronome,
                 (v) => st.set('metronome', v, () => st.metronome = v)),
             if (st.metronome)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Row(
                   children: [
-                    Text('${st.metronomeBpm} kroků/min', style: const TextStyle(fontSize: 18)),
+                    Text(l.settings_stepsPerMin(st.metronomeBpm), style: const TextStyle(fontSize: 18)),
                     Expanded(
                       child: Slider(
                         value: st.metronomeBpm.toDouble(),
@@ -70,18 +87,18 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            _choice<MapLayer>('Mapový podklad', MapLayer.values, st.mapLayer,
-                (v) => v == MapLayer.satellite ? 'Satelit' : 'Turistická',
+            _choice<MapLayer>(l.settings_mapLayer, MapLayer.values, st.mapLayer,
+                (v) => v == MapLayer.satellite ? l.map_satellite : l.map_topo,
                 (v) => st.set('mapLayer', v, () => st.mapLayer = v)),
             const Divider(height: 40),
             OutlinedButton(
               onPressed: () async => shareAllRunsZip(s.db, await s.db.watchRuns().first),
-              child: const Text('Zálohovat všechny běhy (ZIP s GPX)'),
+              child: Text(l.settings_backup),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Žádná data neopouští telefon. Běhánek nemá účet, server, analytiku ani reklamy.',
-              style: TextStyle(color: Colors.white60),
+            Text(
+              l.settings_privacy,
+              style: const TextStyle(color: Colors.white60),
             ),
           ],
         ),

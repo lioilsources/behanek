@@ -1,3 +1,7 @@
+import 'package:intl/intl.dart';
+
+import '../l10n/l10n.dart';
+
 /// Jednotky a formátování čísel pro obrazovku i hlasové cue.
 enum DistanceUnit { km, mi }
 
@@ -28,17 +32,20 @@ String formatPace(double? secondsPerKm, DistanceUnit unit) {
   return formatDuration(perUnit);
 }
 
-/// 5234 m -> "5,23" (km) s desetinnou čárkou.
-String formatDistance(double meters, DistanceUnit unit, {int decimals = 2}) {
-  return (meters / unit.meters).toStringAsFixed(decimals).replaceAll('.', ',');
-}
+/// Číslo s pevným počtem desetinných míst v jazyce appky: 5,23 / 5.23.
+String formatDecimal(double v, int decimals, [String? locale]) =>
+    NumberFormat.decimalPatternDigits(locale: locale ?? localeTag, decimalDigits: decimals).format(v);
 
-String formatDate(DateTime d) => '${d.day}. ${d.month}. ${d.year}';
+/// 5234 m -> "5,23" (km).
+String formatDistance(double meters, DistanceUnit unit, {int decimals = 2}) =>
+    formatDecimal(meters / unit.meters, decimals);
 
-String formatDateTime(DateTime d) =>
-    '${formatDate(d)} ${d.hour}:${d.minute.toString().padLeft(2, '0')}';
+String formatDate(DateTime d) => DateFormat.yMd(localeTag).format(d);
 
-const czechMonths = [
-  'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
-  'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec',
-];
+String formatDateTime(DateTime d) => DateFormat.yMd(localeTag).add_Hm().format(d);
+
+/// "říjen 2026"
+String formatMonth(DateTime d) => DateFormat.yMMMM(localeTag).format(d);
+
+/// "26. 10." — popisek týdne v reportu.
+String formatDayMonth(DateTime d) => DateFormat.Md(localeTag).format(d);

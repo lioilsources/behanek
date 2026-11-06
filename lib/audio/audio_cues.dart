@@ -53,7 +53,7 @@ class AudioCues {
   }
 
   Future<void> setLanguage(CueLang lang) async {
-    await _tts.setLanguage(lang == CueLang.cs ? 'cs-CZ' : 'en-US');
+    await _tts.setLanguage(lang.tts);
   }
 
   Future<void> _play(AudioPlayer p) async {

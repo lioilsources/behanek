@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../audio/audio_cues.dart';
 import '../core/db.dart';
 import '../core/settings.dart';
 import '../export/purchases.dart';
 import '../gps/run_controller.dart';
+import '../l10n/l10n.dart';
 import 'history_screen.dart';
 
 /// Všechny služby appky na jednom místě; obrazovky si je berou přes [App.of].
@@ -75,7 +77,10 @@ ThemeData buildTheme() {
 
 class BehanekApp extends StatelessWidget {
   final Services services;
-  const BehanekApp(this.services, {super.key});
+
+  /// Pevný jazyk pro testy a screenshoty; jinak podle telefonu.
+  final Locale? locale;
+  const BehanekApp(this.services, {super.key, this.locale});
 
   @override
   Widget build(BuildContext context) => App(
@@ -84,6 +89,18 @@ class BehanekApp extends StatelessWidget {
           title: 'Běhánek',
           debugShowCheckedModeBanner: false,
           theme: buildTheme(),
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          builder: (context, child) {
+            appLocale = Localizations.localeOf(context);
+            return child!;
+          },
           home: const HistoryScreen(),
         ),
       );
@@ -127,7 +144,7 @@ Future<bool> confirm(BuildContext context, String title, String action, {String?
       title: Text(title),
       content: body == null ? null : Text(body),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Zpět')),
+        TextButton(onPressed: () => Navigator.pop(c, false), child: Text(c.l.back)),
         TextButton(onPressed: () => Navigator.pop(c, true), child: Text(action)),
       ],
     ),

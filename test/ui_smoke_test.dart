@@ -2,6 +2,7 @@ import 'package:behanek/audio/audio_cues.dart';
 import 'package:behanek/core/db.dart';
 import 'package:behanek/core/settings.dart';
 import 'package:behanek/core/track.dart';
+import 'package:behanek/core/units.dart';
 import 'package:behanek/export/purchases.dart';
 import 'package:behanek/gps/run_controller.dart';
 import 'package:behanek/ui/app.dart';
@@ -18,13 +19,14 @@ void main() {
 
     await tester.runAsync(() async {
       await settings.load();
+      settings.unit = DistanceUnit.km; // testy běží v en_US, kde je výchozí míle
       await db.importRun(DateTime(2026, 10, 20, 7), [
         for (var s = 0; s <= 1500; s++)
           TrackPt(t: s * 1000, lat: 50 + 3.33 * s / 111194.9, lon: 14.4, alt: 200),
       ]);
     });
 
-    await tester.pumpWidget(BehanekApp(services));
+    await tester.pumpWidget(BehanekApp(services, locale: const Locale('cs')));
     await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 200)));
     await tester.pump();
     expect(find.text('Běžet'), findsOneWidget);
@@ -37,7 +39,7 @@ void main() {
     await tester.tap(find.text('mi'));
     await tester.pumpAndSettle();
     expect(settings.unit.name, 'mi');
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton)); // pageBack hledá anglický tooltip „Back“
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Import'));

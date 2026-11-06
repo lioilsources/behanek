@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../core/units.dart';
 import '../export/importer.dart';
+import '../l10n/l10n.dart';
 import '../map/route_thumb.dart';
 import 'app.dart';
 
@@ -57,7 +58,7 @@ class _ImportScreenState extends State<ImportScreen> {
     setState(() {
       _busy = false;
       _items = null;
-      _result = 'Naimportováno $ok běhů${skipped > 0 ? ', $skipped už v historii bylo' : ''}.';
+      _result = skipped > 0 ? context.l.import_doneSkipped(ok, skipped) : context.l.import_done(ok);
     });
   }
 
@@ -65,7 +66,7 @@ class _ImportScreenState extends State<ImportScreen> {
   Widget build(BuildContext context) {
     final s = App.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Import GPX')),
+      appBar: AppBar(title: Text(context.l.import_title)),
       body: ListenableBuilder(
         listenable: Listenable.merge([s.settings, s.purchases]),
         builder: (context, _) {
@@ -74,14 +75,11 @@ class _ImportScreenState extends State<ImportScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Text(
-                'Přenes si historii ze Stravy, Garminu nebo jiné appky — vyber jednotlivá GPX, '
-                'nebo celý ZIP exportu. Pacer se z ní hned naučí tvoji formu.',
-                style: TextStyle(fontSize: 17),
-              ),
+              Text(context.l.import_intro, style: const TextStyle(fontSize: 17)),
               const SizedBox(height: 16),
               FilledButton(
-                  onPressed: _busy ? null : _pick, child: Text(items == null ? 'Vybrat soubory' : 'Vybrat jiné')),
+                  onPressed: _busy ? null : _pick,
+                  child: Text(items == null ? context.l.import_pick : context.l.import_pickOther)),
               if (_busy) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
               if (_result != null)
                 Padding(
@@ -100,14 +98,16 @@ class _ImportScreenState extends State<ImportScreen> {
 
   List<Widget> _preview(BuildContext context, List<ImportCandidate> items, bool unlocked) {
     final unit = App.of(context).settings.unit;
+    final l = context.l;
     final good = items.where((c) => c.importable).toList();
     // Bez nákupu: náhled jednoho souboru — co by se naimportovalo.
     final shown = unlocked ? items : items.take(1).toList();
     return [
       const SizedBox(height: 16),
       Text(
-          '${good.length} běhů k importu'
-          '${items.length > good.length ? ' (${items.length - good.length} přeskočeno)' : ''}',
+          items.length > good.length
+              ? l.import_toImportSkipped(good.length, items.length - good.length)
+              : l.import_toImport(good.length),
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
       for (final c in shown)
         ListTile(
@@ -116,31 +116,31 @@ class _ImportScreenState extends State<ImportScreen> {
           title: Text(c.gpx == null
               ? c.fileName
               : '${formatDateTime(c.gpx!.startedAt)} · ${formatDistance(c.stats!.distanceM, unit)} ${unit.label}'),
-          subtitle: Text(c.error ??
+          subtitle: Text(c.error?.message(l) ??
               (c.duplicate
-                  ? 'Už je v historii'
+                  ? l.import_duplicate
                   : '${formatDuration(c.stats!.movingTimeS)} · ${formatPace(c.stats!.avgPaceSPerKm, unit)}${unit.paceLabel}')),
         ),
       if (!unlocked && items.length > 1)
-        Text('… a dalších ${items.length - 1} souborů', style: const TextStyle(color: Colors.white60)),
+        Text(l.import_andMore(items.length - 1), style: const TextStyle(color: Colors.white60)),
       const SizedBox(height: 16),
       if (unlocked)
         FilledButton(
-            onPressed: good.isEmpty ? null : _import, child: Text('Importovat ${good.length} běhů')),
+            onPressed: good.isEmpty ? null : _import, child: Text(l.import_importN(good.length))),
     ];
   }
 
   List<Widget> _purchase(BuildContext context) {
     final p = App.of(context).purchases;
+    final l = context.l;
     return [
-      Text('Import je jediná placená věc v Běhánkovi: jednorázově ${p.price}. '
-          'Export tvých běhů je vždy zdarma.',
+      Text(l.import_paid(p.price),
           style: const TextStyle(fontSize: 16, color: Colors.white70)),
       const SizedBox(height: 12),
       FilledButton(
-          onPressed: p.pending ? null : p.buy, child: Text('Odemknout import — ${p.price}')),
+          onPressed: p.pending ? null : p.buy, child: Text(l.import_unlock(p.price))),
       const SizedBox(height: 8),
-      TextButton(onPressed: p.pending ? null : p.restore, child: const Text('Obnovit nákup')),
+      TextButton(onPressed: p.pending ? null : p.restore, child: Text(l.import_restore)),
       if (p.error != null) Text(p.error!, style: const TextStyle(color: Colors.orangeAccent)),
     ];
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../l10n/l10n.dart';
 import 'run_tracker.dart';
 
 enum LocationAccess { granted, denied, deniedForever, serviceOff }
@@ -29,14 +30,14 @@ class LocationSource {
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 0,
         intervalDuration: const Duration(seconds: 1),
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
+        foregroundNotificationConfig: ForegroundNotificationConfig(
           notificationTitle: 'Běhánek',
-          notificationText: 'Zaznamenávám běh',
-          notificationChannelName: 'Záznam běhu',
-          notificationIcon: AndroidResource(name: 'ic_stat_run', defType: 'drawable'),
+          notificationText: l10n.notif_recording,
+          notificationChannelName: l10n.notif_channel,
+          notificationIcon: const AndroidResource(name: 'ic_stat_run', defType: 'drawable'),
           enableWakeLock: true,
           setOngoing: true,
-          color: Color(0xFFC6FF00),
+          color: const Color(0xFFC6FF00),
         ),
       );
     } else if (Platform.isIOS) {
