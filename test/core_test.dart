@@ -5,6 +5,7 @@ import 'package:behanek/gps/geo.dart';
 import 'package:behanek/gps/run_tracker.dart';
 import 'package:behanek/pacer/cue.dart';
 import 'package:behanek/pacer/form_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Rovná trasa na sever konstantní rychlostí, 1 bod/s.
@@ -171,6 +172,24 @@ void main() {
       final e = en.build(distanceM: 5000, movingTimeS: 1500, currentPace: 320, targetPace: 300);
       expect(e.text, '5 kilometers, pace 5 20, 20 seconds slower');
       expect(e.tone, ToneSignal.speedUp);
+    });
+
+    test('cue ve všech jazycích hlasu', () {
+      for (final lang in CueLang.values) {
+        for (final unit in DistanceUnit.values) {
+          final b = CueBuilder(lang, unit);
+          for (final c in [
+            b.build(distanceM: 3210, movingTimeS: 1000, currentPace: 310, targetPace: 330),
+            b.build(distanceM: 1000, movingTimeS: 300, currentPace: 300, targetPace: 299),
+            b.build(distanceM: 21000, movingTimeS: 6000, currentPace: 300, ghostDeltaM: 1),
+            b.build(distanceM: 2000, movingTimeS: 600, currentPace: 300, ghostDeltaM: -52),
+            b.build(distanceM: 5000, movingTimeS: 1500),
+          ]) {
+            expect(c.text, isNot(contains('{')), reason: lang.name);
+            debugPrint('${lang.name} ${unit.name}: ${c.text}');
+          }
+        }
+      }
     });
   });
 
