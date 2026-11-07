@@ -6,6 +6,7 @@ import '../core/units.dart';
 import '../export/report.dart';
 import '../export/share.dart';
 import '../map/route_thumb.dart';
+import '../l10n/l10n.dart';
 import 'app.dart';
 import 'detail_screen.dart';
 import 'import_screen.dart';
@@ -25,11 +26,11 @@ class HistoryScreen extends StatelessWidget {
           TextButton(
               onPressed: () =>
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportScreen())),
-              child: const Text('Import')),
+              child: Text(context.l.history_import)),
           TextButton(
               onPressed: () =>
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-              child: const Text('Nastavení')),
+              child: Text(context.l.history_settings)),
         ],
       ),
       body: ListenableBuilder(
@@ -40,11 +41,11 @@ class HistoryScreen extends StatelessWidget {
             final runs = snap.data;
             if (runs == null) return const SizedBox.shrink();
             if (runs.isEmpty) {
-              return const Center(
+              return Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text('Zatím žádný běh.\nObuj boty a zmáčkni Běžet.',
-                      textAlign: TextAlign.center, style: TextStyle(fontSize: 20, color: Colors.white70)),
+                  padding: const EdgeInsets.all(32),
+                  child: Text(context.l.history_empty,
+                      textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, color: Colors.white70)),
                 ),
               );
             }
@@ -58,7 +59,7 @@ class HistoryScreen extends StatelessWidget {
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
           onPressed: () =>
               Navigator.push(context, MaterialPageRoute(builder: (_) => const RunScreen())),
-          child: const Text('Běžet', style: TextStyle(fontSize: 26)),
+          child: Text(context.l.history_run, style: const TextStyle(fontSize: 26)),
         ),
       ),
     );
@@ -113,7 +114,8 @@ class _MonthHeader extends StatelessWidget {
     String trend = '';
     if (pace != null && prev != null) {
       final d = (pace - prev).round();
-      trend = d.abs() < 2 ? ' · tempo stejné' : d < 0 ? ' · o ${-d} s rychleji' : ' · o $d s pomaleji';
+      final l = context.l;
+      trend = ' · ${d.abs() < 2 ? l.history_paceSame : d < 0 ? l.history_paceFaster(-d) : l.history_paceSlower(d)}';
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 8, 8),
@@ -123,7 +125,7 @@ class _MonthHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${czechMonths[m.month.month - 1]} ${m.month.year}',
+                Text(formatMonth(m.month),
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 2),
                 Text(
@@ -138,7 +140,7 @@ class _MonthHeader extends StatelessWidget {
               final png = await renderMonthReport(m.month, m.runs, unit);
               await sharePng(png, 'behanek-${m.month.year}-${m.month.month}.png');
             },
-            child: const Text('Report'),
+            child: Text(context.l.history_report),
           ),
         ],
       ),

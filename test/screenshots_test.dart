@@ -9,26 +9,36 @@ import 'package:behanek/audio/audio_cues.dart';
 import 'package:behanek/core/db.dart';
 import 'package:behanek/core/settings.dart';
 import 'package:behanek/core/track.dart';
+import 'package:behanek/core/units.dart';
 import 'package:behanek/export/purchases.dart';
 import 'package:behanek/gps/geo.dart';
 import 'package:behanek/gps/location_source.dart';
 import 'package:behanek/gps/run_controller.dart';
 import 'package:behanek/gps/run_tracker.dart';
+import 'package:behanek/l10n/l10n.dart';
+import 'package:behanek/pacer/cue.dart';
 import 'package:behanek/pacer/form_model.dart';
 import 'package:behanek/ui/app.dart';
 import 'package:behanek/ui/detail_screen.dart';
 import 'package:behanek/ui/history_screen.dart';
+import 'package:behanek/ui/import_screen.dart';
 import 'package:behanek/ui/run_screen.dart';
 import 'package:behanek/ui/settings_screen.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Vykreslí hlavní obrazovky do PNG pro stránku v obchodě (olin.now/behanek):
 ///
-///     SCREENSHOT_DIR=/tmp/shots flutter test test/screenshots_test.dart
+///     SCREENSHOT_DIR=/tmp/shots SCREENSHOT_LANG=de flutter test test/screenshots_test.dart
+///
+/// SCREENSHOT_LANG je jazyk appky (výchozí cs), SCREENSHOT_DEVICE velikost: `iphone`
+/// (6,9″, 1320×2868 pro App Store a olin.now) nebo `android` (1080×2160 — Google Play
+/// nebere obrázky delší než dvojnásobek šířky). Japonština a korejština potřebují
+/// Noto Sans CJK: CJK_FONT_DIR se soubory NotoSansCJK{jp,kr}-{Regular,Medium,Bold,Black}.otf.
 ///
 /// Bez SCREENSHOT_DIR se všechno přeskočí, takže běžné `flutter test` na pixelech
 /// ani na síti nezávisí. Obrazovky jsou widgety appky nad pamětovou DB; běhy
@@ -36,8 +46,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// mapové dlaždice se stahují naživo (bez MAPY_API_KEY = OpenTopoMap).
 final _dir = Platform.environment['SCREENSHOT_DIR'];
 
-const _phone = Size(390, 844); // iPhone 14/15, @3x
+final _lang = Platform.environment['SCREENSHOT_LANG'] ?? 'cs';
+final _android = Platform.environment['SCREENSHOT_DEVICE'] == 'android';
+final _phone = _android ? const Size(360, 720) : const Size(440, 956); // @3x
 const _ratio = 3.0;
+final _l = lookupAppLocalizations(Locale(_lang));
 
 final _shotKey = GlobalKey();
 
@@ -47,8 +60,13 @@ Future<void> _loadFonts() async {
   final dir = '${Platform.environment['FLUTTER_ROOT']!}/bin/cache/artifacts/material_fonts';
   Future<ByteData> read(String f) async => ByteData.sublistView(File('$dir/$f').readAsBytesSync());
   final roboto = FontLoader('Roboto');
+  final cjk = {'ja': 'jp', 'ko': 'kr'}[_lang];
   for (final w in ['Regular', 'Medium', 'Bold', 'Black']) {
-    roboto.addFont(read('Roboto-$w.ttf'));
+    // Noto Sans CJK má i latinku, takže v japonštině a korejštině nahradí Roboto celé.
+    roboto.addFont(cjk == null
+        ? read('Roboto-$w.ttf')
+        : Future.value(ByteData.sublistView(
+            File('${Platform.environment['CJK_FONT_DIR']}/NotoSansCJK$cjk-$w.otf').readAsBytesSync())));
   }
   await roboto.load();
   await (FontLoader('MaterialIcons')..addFont(read('MaterialIcons-Regular.otf'))).load();
@@ -152,7 +170,10 @@ void main() {
   late _StillRun run;
   final ids = <String, int>{};
 
-  final today = DateTime.now();
+  // Nejnovější běh je 26. v měsíci; před 27. se „aktuální“ měsíc posune o jeden zpět,
+  // jinak by historie ukazovala běhy v budoucnu.
+  final now = DateTime.now();
+  final today = now.day > 26 ? now : DateTime(now.year, now.month - 1, 28);
   DateTime day(int monthsBack, int d, int h, int min) => DateTime(today.year, today.month - monthsBack, d, h, min);
 
   // Tři měsíce běhání po Praze, tempo se pomalu zlepšuje.
@@ -188,6 +209,8 @@ void main() {
 
   Future<void> seed(WidgetTester tester) => tester.runAsync(() async {
         await services.settings.load();
+        services.settings.unit = DistanceUnit.km; // test běží v en_US, kde je výchozí míle
+        services.settings.cueLang = CueLang.values.byName(_lang);
         for (final (i, (key, at, route, pace, laps)) in history.indexed) {
           final pts = _runAlong(route, pace, laps: laps, seed: i + 1);
           final id = await db.startRun(at);
@@ -227,7 +250,23 @@ void main() {
       key: _shotKey,
       child: App(
         services: services,
-        child: MaterialApp(debugShowCheckedModeBanner: false, theme: _theme(), home: home()),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: _theme(),
+          locale: Locale(_lang),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          builder: (context, child) {
+            appLocale = Localizations.localeOf(context);
+            return child!;
+          },
+          home: home(),
+        ),
       ),
     ));
     await settle(tester, rounds: 4);
@@ -278,7 +317,7 @@ void main() {
     await shoot(tester, '03-duch', () => const RunScreen(), then: () async {
       run.lastFix = fixAtStart();
       run.notifyListeners();
-      await tester.tap(find.text('Duch'));
+      await tester.tap(find.text(_l.run_ghost));
       await settle(tester, rounds: 4);
     });
   });
@@ -300,7 +339,7 @@ void main() {
       run.lastFix = GpsFix(time: DateTime.now(), lat: last.lat, lon: last.lon, accuracy: 4);
       run.showLive(tr);
       await tester.pump();
-      await tester.tap(find.text('Mapa'));
+      await tester.tap(find.text(_l.run_map));
       await settle(tester);
     });
   });
@@ -318,5 +357,10 @@ void main() {
 
   testWidgets('08 nastavení', skip: skip, (tester) async {
     await shoot(tester, '08-nastaveni', () => const SettingsScreen());
+  });
+
+  // Jen pro review nákupu v App Store Connect, do galerie nepatří.
+  testWidgets('09 import', skip: skip, (tester) async {
+    await shoot(tester, '09-import', () => const ImportScreen());
   });
 }

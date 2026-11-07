@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../core/db.dart';
 import '../core/units.dart';
+import '../l10n/l10n.dart';
 
 /// Měsíční report jako PNG: km/týden, trend tempa, nejdelší běh.
 /// Vzniká jen na vyžádání v Historii, uživatel ho sám sdílí.
@@ -12,6 +13,7 @@ Future<Uint8List> renderMonthReport(
     DateTime month, List<RunRow> runs, DistanceUnit unit) async {
   const w = 1080.0, h = 1350.0;
   const bg = Color(0xFF0B0B0B), fg = Colors.white, dim = Color(0xFF9E9E9E), accent = Color(0xFFC6FF00);
+  final l = l10n;
   final rec = ui.PictureRecorder();
   final c = Canvas(rec, const Rect.fromLTWH(0, 0, w, h));
   c.drawRect(const Rect.fromLTWH(0, 0, w, h), Paint()..color = bg);
@@ -31,14 +33,14 @@ Future<Uint8List> renderMonthReport(
   final longest = sorted.isEmpty ? null : sorted.reduce((a, b) => a.distanceM >= b.distanceM ? a : b);
 
   text('Běhánek', 60, 56, 34, color: accent, weight: FontWeight.w800);
-  text('${czechMonths[month.month - 1]} ${month.year}', 60, 100, 64, weight: FontWeight.w800);
+  text(formatMonth(month), 60, 100, 64, weight: FontWeight.w800);
 
   final stats = [
-    ('${formatDistance(totalM, unit, decimals: 1)} ${unit.label}', 'celkem'),
-    ('${sorted.length}', 'běhů'),
-    (totalM > 0 ? formatPace(totalT / (totalM / 1000), unit) : '–', 'tempo ${unit.paceLabel}'),
+    ('${formatDistance(totalM, unit, decimals: 1)} ${unit.label}', l.report_total),
+    ('${sorted.length}', l.report_runs),
+    (totalM > 0 ? formatPace(totalT / (totalM / 1000), unit) : '–', '${l.stat_pace} ${unit.paceLabel}'),
     (longest == null ? '–' : '${formatDistance(longest.distanceM, unit, decimals: 1)} ${unit.label}',
-        'nejdelší'),
+        l.report_longest),
   ];
   for (var i = 0; i < stats.length; i++) {
     final x = 60 + (i % 2) * 490.0, y = 220 + (i ~/ 2) * 150.0;
@@ -47,7 +49,7 @@ Future<Uint8List> renderMonthReport(
   }
 
   // km/týden (týdny od pondělí, které zasahují do měsíce)
-  text('${unit.label} za týden', 60, 540, 30, color: dim);
+  text(l.report_perWeek(unit.label), 60, 540, 30, color: dim);
   final weeks = <DateTime, double>{};
   var wk = DateTime(month.year, month.month, 1);
   wk = wk.subtract(Duration(days: wk.weekday - 1));
@@ -72,13 +74,13 @@ Future<Uint8List> renderMonthReport(
         RRect.fromRectAndRadius(
             Rect.fromLTWH(x + 12, chartTop + chartH - bh, bw - 24, bh), const Radius.circular(8)),
         Paint()..color = accent);
-    text(e.value.toStringAsFixed(1).replaceAll('.', ','), x + 12, chartTop + chartH - bh - 40, 26);
-    text('${e.key.day}. ${e.key.month}.', x + 12, chartTop + chartH + 10, 22, color: dim);
+    text(formatDecimal(e.value, 1), x + 12, chartTop + chartH - bh - 40, 26);
+    text(formatDayMonth(e.key), x + 12, chartTop + chartH + 10, 22, color: dim);
     i++;
   }
 
   // trend tempa: průměrné tempo každého běhu, níž = rychleji
-  text('Trend tempa', 60, 960, 30, color: dim);
+  text(l.report_paceTrend, 60, 960, 30, color: dim);
   final paces = [for (final r in sorted) if (r.avgPaceSPerKm != null) r.avgPaceSPerKm!];
   if (paces.length >= 2) {
     final lo = paces.reduce((a, b) => a < b ? a : b), hi = paces.reduce((a, b) => a > b ? a : b);
@@ -100,7 +102,7 @@ Future<Uint8List> renderMonthReport(
     text(formatPace(lo, unit), w - 200, top - 40, 24, color: dim);
     text(formatPace(hi, unit), w - 200, top + ph + 12, 24, color: dim);
   } else {
-    text('Málo běhů na trend.', 60, 1020, 28, color: dim);
+    text(l.report_fewRuns, 60, 1020, 28, color: dim);
   }
 
   final img = await rec.endRecording().toImage(w.toInt(), h.toInt());

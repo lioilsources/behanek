@@ -8,6 +8,7 @@ import '../core/track.dart';
 import '../core/units.dart';
 import '../export/share.dart';
 import '../gps/geo.dart';
+import '../l10n/l10n.dart';
 import '../map/tiles.dart';
 import 'app.dart';
 import 'history_screen.dart' show thumbCache;
@@ -39,6 +40,7 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   Widget build(BuildContext context) {
     final s = App.of(context);
+    final l = context.l;
     final unit = s.settings.unit;
     return StreamBuilder<RunRow?>(
       stream: s.db.watchRun(widget.runId),
@@ -61,24 +63,24 @@ class _DetailScreenState extends State<DetailScreen> {
                         runSpacing: 16,
                         children: [
                           BigStat(formatDistance(r.distanceM, unit), unit.label, size: 44),
-                          BigStat(formatDuration(r.movingTimeS), 'čas', size: 44),
-                          BigStat(formatPace(r.avgPaceSPerKm, unit), 'tempo ${unit.paceLabel}', size: 44),
-                          BigStat('+${r.elevGainM.round()} / −${r.elevLossM.round()}', 'převýšení m',
+                          BigStat(formatDuration(r.movingTimeS), l.stat_time, size: 44),
+                          BigStat(formatPace(r.avgPaceSPerKm, unit), '${l.stat_pace} ${unit.paceLabel}', size: 44),
+                          BigStat('+${r.elevGainM.round()} / −${r.elevLossM.round()}', l.stat_elevation,
                               size: 44),
                         ],
                       ),
                     ),
                     if (r.source == 'gpx_import')
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('Importováno z GPX', style: TextStyle(color: Colors.white54)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(l.detail_imported, style: const TextStyle(color: Colors.white54)),
                       ),
-                    _section('Splity'),
+                    _section(l.detail_splits),
                     _splits(pts, unit),
-                    _section('Tempo'),
+                    _section(l.detail_pace),
                     _paceChart(pts, unit),
                     if (pts.any((p) => p.alt != null)) ...[
-                      _section('Výška'),
+                      _section(l.detail_elevation),
                       _elevChart(pts, unit),
                     ],
                     const SizedBox(height: 24),
@@ -88,7 +90,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           OutlinedButton(
-                              onPressed: () => shareRunGpx(s.db, r), child: const Text('Exportovat GPX')),
+                              onPressed: () => shareRunGpx(s.db, r), child: Text(l.detail_exportGpx)),
                           const SizedBox(height: 12),
                           OutlinedButton(
                             onPressed: pts.length < 2
@@ -103,21 +105,21 @@ class _DetailScreenState extends State<DetailScreen> {
                                       await _load();
                                     }
                                   },
-                            child: const Text('Oříznout začátek / konec'),
+                            child: Text(l.detail_trim),
                           ),
                           const SizedBox(height: 12),
                           OutlinedButton(
                             style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFFFF5252)),
                             onPressed: () async {
                               final nav = Navigator.of(context);
-                              if (await confirm(context, 'Smazat běh?', 'Smazat',
-                                  body: 'Běh a jeho trasa zmizí z telefonu. Nejde to vrátit.')) {
+                              if (await confirm(context, l.detail_deleteTitle, l.detail_delete,
+                                  body: l.detail_deleteBody)) {
                                 await s.db.deleteRun(r.id);
                                 thumbCache.remove(r.id);
                                 nav.pop();
                               }
                             },
-                            child: const Text('Smazat běh'),
+                            child: Text(l.detail_deleteRun),
                           ),
                         ],
                       ),
@@ -167,8 +169,8 @@ class _DetailScreenState extends State<DetailScreen> {
               ]),
               MarkerLayer(markers: [
                 for (var i = 0; i < markers.length; i++) dot(markers[i], Colors.white, '${i + 1}'),
-                dot(pts.first, accent, 'S'),
-                dot(pts.last, const Color(0xFFFF5252), 'C'),
+                dot(pts.first, accent, context.l.detail_startMarker),
+                dot(pts.last, const Color(0xFFFF5252), context.l.detail_finishMarker),
               ]),
               attribution(layer),
             ],
@@ -180,7 +182,7 @@ class _DetailScreenState extends State<DetailScreen> {
             for (final l in MapLayer.values)
               TextButton(
                 onPressed: () => setState(() => _layer = l),
-                child: Text(l == MapLayer.satellite ? 'Satelit' : 'Turistická',
+                child: Text(l == MapLayer.satellite ? context.l.map_satellite : context.l.map_topo,
                     style: TextStyle(
                         decoration: l == layer ? TextDecoration.underline : null, fontSize: 16)),
               ),
@@ -193,8 +195,8 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _splits(List<TrackPt> pts, DistanceUnit unit) {
     final splits = computeStats(pts, splitLengthM: unit.meters).splits;
     if (splits.isEmpty) {
-      return const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16), child: Text('Kratší než jeden úsek.'));
+      return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(context.l.detail_tooShort));
     }
     final best = splits.map((s) => s.paceSPerKm).reduce((a, b) => a < b ? a : b);
     final worst = splits.map((s) => s.paceSPerKm).reduce((a, b) => a > b ? a : b);
@@ -288,7 +290,7 @@ class _DetailScreenState extends State<DetailScreen> {
         minY: lo,
         maxY: hi,
         leftLabel: (v) => '${v.round()}',
-        bottomLabel: (v) => '${v.toStringAsFixed(1).replaceAll('.', ',')} ${unit.label}',
+        bottomLabel: (v) => '${formatDecimal(v, 1)} ${unit.label}',
         fill: true);
   }
 

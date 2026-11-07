@@ -4,13 +4,14 @@ import 'package:archive/archive.dart';
 
 import '../core/track.dart';
 import '../gps/geo.dart';
+import '../l10n/l10n.dart';
 import 'gpx.dart';
 
 class ImportCandidate {
   final String fileName;
   final ParsedGpx? gpx;
   final RunStats? stats;
-  final String? error;
+  final ImportError? error;
   bool duplicate = false;
 
   ImportCandidate.ok(this.fileName, ParsedGpx g)
@@ -33,7 +34,7 @@ List<ImportCandidate> parseImportFile(String name, List<int> bytes) {
     try {
       archive = ZipDecoder().decodeBytes(bytes);
     } catch (_) {
-      return [ImportCandidate.failed(name, 'ZIP nejde otevřít.')];
+      return [ImportCandidate.failed(name, ImportError.zip)];
     }
     return [
       for (final f in archive.files)
@@ -51,6 +52,15 @@ ImportCandidate _parseOne(String name, List<int> bytes) {
   try {
     return ImportCandidate.ok(name, parseGpx(utf8.decode(bytes, allowMalformed: true)));
   } on GpxFormatException catch (e) {
-    return ImportCandidate.failed(name, e.message);
+    return ImportCandidate.failed(name, e.error);
   }
+}
+
+extension ImportErrorText on ImportError {
+  String message(AppLocalizations l) => switch (this) {
+        ImportError.zip => l.import_errZip,
+        ImportError.invalid => l.import_errInvalid,
+        ImportError.noPoints => l.import_errNoPoints,
+        ImportError.noTimes => l.import_errNoTimes,
+      };
 }

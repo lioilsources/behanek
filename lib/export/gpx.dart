@@ -10,11 +10,15 @@ class ParsedGpx {
   const ParsedGpx(this.startedAt, this.name, this.points);
 }
 
+/// Proč soubor nejde importovat; text v jazyce appky dává [ImportErrorText].
+enum ImportError { zip, invalid, noPoints, noTimes }
+
 class GpxFormatException implements Exception {
-  final String message;
-  const GpxFormatException(this.message);
+  final ImportError error;
+  final String? detail;
+  const GpxFormatException(this.error, [this.detail]);
   @override
-  String toString() => message;
+  String toString() => detail == null ? error.name : '${error.name}: $detail';
 }
 
 String writeGpx({
@@ -33,7 +37,7 @@ String writeGpx({
       b.element('time', nest: startedAt.toUtc().toIso8601String());
     });
     b.element('trk', nest: () {
-      b.element('name', nest: name ?? 'Běh ${startedAt.toIso8601String()}');
+      b.element('name', nest: name ?? 'Běhánek ${startedAt.toIso8601String()}');
       b.element('type', nest: 'running');
       var i = 0;
       while (i < points.length) {
@@ -63,11 +67,11 @@ ParsedGpx parseGpx(String source) {
   try {
     doc = XmlDocument.parse(source);
   } on XmlException catch (e) {
-    throw GpxFormatException('Soubor není platné GPX (${e.message}).');
+    throw GpxFormatException(ImportError.invalid, e.message);
   }
   var pts = doc.findAllElements('trkpt', namespaceUri: '*').toList();
   if (pts.isEmpty) pts = doc.findAllElements('rtept', namespaceUri: '*').toList();
-  if (pts.isEmpty) throw const GpxFormatException('GPX neobsahuje žádné body trasy.');
+  if (pts.isEmpty) throw const GpxFormatException(ImportError.noPoints);
 
   final raw = <(DateTime, double, double, double?)>[];
   for (final e in pts) {
@@ -81,7 +85,7 @@ ParsedGpx parseGpx(String source) {
     raw.add((time, lat, lon, ele));
   }
   if (raw.length < 2) {
-    throw const GpxFormatException('GPX nemá body s časem — nelze spočítat tempo.');
+    throw const GpxFormatException(ImportError.noTimes);
   }
   raw.sort((a, b) => a.$1.compareTo(b.$1));
   final start = raw.first.$1.toLocal();

@@ -16,8 +16,10 @@ class AppSettings extends ChangeNotifier {
   final AppDb _db;
   AppSettings(this._db);
 
-  DistanceUnit unit = DistanceUnit.km;
-  CueLang cueLang = CueLang.cs;
+  DistanceUnit unit =
+      PlatformDispatcher.instance.locale.countryCode == 'US' ? DistanceUnit.mi : DistanceUnit.km;
+  /// Výchozí podle jazyka telefonu, dokud si ho uživatel nezmění.
+  CueLang cueLang = CueLang.of(PlatformDispatcher.instance.locale);
   int cueIntervalS = 60;
   CueMode cueMode = CueMode.both;
   bool autoPause = false;

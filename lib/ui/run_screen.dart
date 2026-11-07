@@ -8,6 +8,7 @@ import '../core/units.dart';
 import '../gps/location_source.dart';
 import '../gps/run_controller.dart';
 import '../gps/run_tracker.dart';
+import '../l10n/l10n.dart';
 import '../map/tiles.dart';
 import 'app.dart';
 import 'detail_screen.dart';
@@ -52,7 +53,7 @@ class _RunScreenState extends State<RunScreen> {
         // Během běhu zpět nevede — jen přes stop, ať se běh omylem neztratí.
         canPop: _run.phase == Phase.idle,
         child: Scaffold(
-          appBar: _run.phase == Phase.idle ? AppBar(title: const Text('Běh')) : null,
+          appBar: _run.phase == Phase.idle ? AppBar(title: Text(context.l.run_title)) : null,
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -71,6 +72,7 @@ class _RunScreenState extends State<RunScreen> {
 
   Widget _idle(BuildContext context) {
     final s = App.of(context);
+    final l = context.l;
     final fix = _run.lastFix;
     if (_access != null && _access != LocationAccess.granted) {
       return Column(
@@ -79,9 +81,8 @@ class _RunScreenState extends State<RunScreen> {
         children: [
           Text(
             switch (_access!) {
-              LocationAccess.serviceOff => 'Poloha v telefonu je vypnutá. Bez ní běh nezaznamenám.',
-              _ => 'Běhánek potřebuje polohu „při používání“, aby zaznamenal trasu. '
-                  'Nikam ji neposílá, zůstává v telefonu.',
+              LocationAccess.serviceOff => l.run_locationOff,
+              _ => l.run_locationNeeded,
             },
             style: const TextStyle(fontSize: 20),
           ),
@@ -95,27 +96,29 @@ class _RunScreenState extends State<RunScreen> {
               }
               await _warmUp();
             },
-            child: const Text('Povolit polohu'),
+            child: Text(l.run_allowLocation),
           ),
         ],
       );
     }
 
     final gpsText = fix == null
-        ? 'Hledám GPS…'
+        ? l.run_gpsSearching
         : fix.accuracy <= 10
-            ? 'GPS výborné (±${fix.accuracy.round()} m)'
+            ? l.run_gpsExcellent(fix.accuracy.round())
             : fix.accuracy <= 25
-                ? 'GPS dobré (±${fix.accuracy.round()} m)'
-                : 'GPS slabé (±${fix.accuracy.round()} m) — počkej chvíli';
+                ? l.run_gpsGood(fix.accuracy.round())
+                : l.run_gpsWeak(fix.accuracy.round());
     final p = _run.profile;
     final pacerText = switch (_run.pacer) {
       GhostPacer(:final run) =>
-        'Duch: ${formatDate(run.startedAt)}, ${formatDistance(run.distanceM, s.settings.unit)} ${s.settings.unit.label}',
+        l.run_ghostPacer(formatDate(run.startedAt),
+            '${formatDistance(run.distanceM, s.settings.unit)} ${s.settings.unit.label}'),
       FormPacer() => p == null
-          ? 'Pacer: zatím málo běhů — budu hlásit jen čas a vzdálenost'
-          : 'Pacer: tvoje forma z ${p.basedOnRuns} běhů'
-              '${s.settings.pacerTarget == PacerTarget.improve ? ', o 2 % rychleji' : ''}',
+          ? l.run_pacerFewRuns
+          : s.settings.pacerTarget == PacerTarget.improve
+              ? l.run_pacerFormImprove(p.basedOnRuns)
+              : l.run_pacerForm(p.basedOnRuns),
     };
 
     return Column(
@@ -129,11 +132,11 @@ class _RunScreenState extends State<RunScreen> {
         Row(children: [
           Expanded(
             child: OutlinedButton(
-                onPressed: () => _run.choosePacer(const FormPacer()), child: const Text('Forma')),
+                onPressed: () => _run.choosePacer(const FormPacer()), child: Text(l.run_form)),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: OutlinedButton(onPressed: () => _pickGhost(context), child: const Text('Duch')),
+            child: OutlinedButton(onPressed: () => _pickGhost(context), child: Text(l.run_ghost)),
           ),
         ]),
         const Spacer(),
@@ -141,7 +144,7 @@ class _RunScreenState extends State<RunScreen> {
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(120)),
           // Start jde i bez fixu; body se začnou počítat, jakmile je přesnost dost dobrá.
           onPressed: _run.start,
-          child: const Text('START', style: TextStyle(fontSize: 40)),
+          child: Text(l.run_start, style: const TextStyle(fontSize: 40)),
         ),
       ],
     );
@@ -157,10 +160,9 @@ class _RunScreenState extends State<RunScreen> {
       context: context,
       builder: (c) => SafeArea(
         child: near.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('Odtud jsi ještě neběžel(a) — duch potřebuje běh se startem do 300 m.',
-                    style: TextStyle(fontSize: 18)),
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(c.l.run_noGhost, style: const TextStyle(fontSize: 18)),
               )
             : ListView(
                 shrinkWrap: true,
@@ -191,12 +193,13 @@ class _RunScreenState extends State<RunScreen> {
                   style: const TextStyle(fontSize: 220, fontWeight: FontWeight.w900, color: accent)),
             ),
           ),
-          OutlinedButton(onPressed: _run.cancelCountdown, child: const Text('Zrušit')),
+          OutlinedButton(onPressed: _run.cancelCountdown, child: Text(context.l.run_cancel)),
         ],
       );
 
   Widget _active(BuildContext context) {
     final s = App.of(context);
+    final l = context.l;
     final unit = s.settings.unit;
     final tr = _run.tracker!;
     final now = DateTime.now();
@@ -208,15 +211,15 @@ class _RunScreenState extends State<RunScreen> {
     final target = _run.targetPace;
     if (ghost != null) {
       final m = ghost.abs().round();
-      pacerLine = ghost >= 0 ? '$m m před duchem' : '$m m za duchem';
+      pacerLine = ghost >= 0 ? l.run_aheadOfGhost(m) : l.run_behindGhost(m);
       pacerColor = ghost >= 0 ? accent : Colors.orangeAccent;
     } else if (target != null && tr.currentPace != null) {
       final d = (tr.currentPace! - target).round();
       pacerLine = d.abs() <= 3
-          ? 'v plánu (${formatPace(target, unit)})'
+          ? l.run_onTarget(formatPace(target, unit))
           : d < 0
-              ? '${-d} s rychleji než ${formatPace(target, unit)}'
-              : '$d s pomaleji než ${formatPace(target, unit)}';
+              ? l.run_fasterThan(-d, formatPace(target, unit))
+              : l.run_slowerThan(d, formatPace(target, unit));
       pacerColor = d.abs() <= 3 ? accent : Colors.orangeAccent;
     }
 
@@ -227,13 +230,13 @@ class _RunScreenState extends State<RunScreen> {
           Container(
             color: Colors.orangeAccent,
             padding: const EdgeInsets.all(8),
-            child: Text(tr.state == RunState.autoPaused ? 'AUTO-PAUZA' : 'PAUZA',
+            child: Text(tr.state == RunState.autoPaused ? l.run_autoPaused : l.run_paused,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.black)),
           ),
         if (!_run.hasGpsFix)
-          const Text('Slabý GPS signál', textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: Colors.orangeAccent)),
+          Text(l.run_weakGps, textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, color: Colors.orangeAccent)),
         Expanded(
           child: _showMap
               ? _liveMap(context)
@@ -241,11 +244,11 @@ class _RunScreenState extends State<RunScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BigStat(formatDuration(tr.movingTimeS(now)), 'čas', size: 96),
+                    BigStat(formatDuration(tr.movingTimeS(now)), l.stat_time, size: 96),
                     BigStat(formatDistance(tr.distanceM, unit), unit.label, size: 96),
                     Row(children: [
-                      Expanded(child: BigStat(formatPace(tr.currentPace, unit), 'tempo ${unit.paceLabel}', size: 64)),
-                      Expanded(child: BigStat(formatPace(tr.avgPace(now), unit), 'průměr ${unit.paceLabel}', size: 64)),
+                      Expanded(child: BigStat(formatPace(tr.currentPace, unit), '${l.stat_pace} ${unit.paceLabel}', size: 64)),
+                      Expanded(child: BigStat(formatPace(tr.avgPace(now), unit), '${l.stat_average} ${unit.paceLabel}', size: 64)),
                     ]),
                     if (pacerLine != null)
                       Text(pacerLine,
@@ -259,7 +262,7 @@ class _RunScreenState extends State<RunScreen> {
             child: FilledButton(
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(88)),
               onPressed: _run.togglePause,
-              child: Text(paused ? 'Pokračovat' : 'Pauza', style: const TextStyle(fontSize: 28)),
+              child: Text(paused ? l.run_resume : l.run_pause, style: const TextStyle(fontSize: 28)),
             ),
           ),
           const SizedBox(width: 12),
@@ -267,7 +270,7 @@ class _RunScreenState extends State<RunScreen> {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(88)),
               onPressed: () => setState(() => _showMap = !_showMap),
-              child: Text(_showMap ? 'Čísla' : 'Mapa'),
+              child: Text(_showMap ? l.run_numbers : l.run_map),
             ),
           ),
         ]),
@@ -282,7 +285,7 @@ class _RunScreenState extends State<RunScreen> {
     final pts = toLatLng(_run.tracker!.points);
     final fix = _run.lastFix;
     final here = fix == null ? (pts.isEmpty ? null : pts.last) : LatLng(fix.lat, fix.lon);
-    if (here == null) return const Center(child: Text('Čekám na polohu…'));
+    if (here == null) return Center(child: Text(context.l.run_waitingForLocation));
     // Mapa jede s běžcem; přiblížení si může nastavit sám.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
@@ -316,17 +319,18 @@ class _RunScreenState extends State<RunScreen> {
 
   Widget _stopped(BuildContext context) {
     final s = App.of(context);
+    final l = context.l;
     final unit = s.settings.unit;
     final tr = _run.tracker!;
     final now = DateTime.now();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Běh zastaven', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
+        Text(l.run_stopped, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
         const SizedBox(height: 24),
-        BigStat('${formatDistance(tr.distanceM, unit)} ${unit.label}', 'vzdálenost', size: 64),
+        BigStat('${formatDistance(tr.distanceM, unit)} ${unit.label}', l.stat_distance, size: 64),
         const SizedBox(height: 16),
-        BigStat(formatDuration(tr.movingTimeS(now)), 'čas', size: 64),
+        BigStat(formatDuration(tr.movingTimeS(now)), l.stat_time, size: 64),
         const Spacer(),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(88)),
@@ -339,21 +343,21 @@ class _RunScreenState extends State<RunScreen> {
               nav.pushReplacement(MaterialPageRoute(builder: (_) => DetailScreen(runId: id)));
             }
           },
-          child: const Text('Uložit', style: TextStyle(fontSize: 28)),
+          child: Text(l.run_save, style: const TextStyle(fontSize: 28)),
         ),
         const SizedBox(height: 12),
-        OutlinedButton(onPressed: _run.continueRun, child: const Text('Pokračovat v běhu')),
+        OutlinedButton(onPressed: _run.continueRun, child: Text(l.run_continue)),
         const SizedBox(height: 12),
         OutlinedButton(
           style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFFFF5252)),
           onPressed: () async {
             final nav = Navigator.of(context);
-            if (await confirm(context, 'Zahodit běh?', 'Zahodit', body: 'Běh se neuloží.')) {
+            if (await confirm(context, l.run_discardTitle, l.run_discard, body: l.run_discardBody)) {
               await _run.discard();
               nav.pop();
             }
           },
-          child: const Text('Zahodit'),
+          child: Text(l.run_discard),
         ),
       ],
     );

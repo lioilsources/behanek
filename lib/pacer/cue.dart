@@ -1,6 +1,36 @@
-import '../core/units.dart';
+import 'dart:ui';
 
-enum CueLang { cs, en }
+import '../core/units.dart';
+import '../l10n/l10n.dart';
+
+/// Jazyk hlasu. Název hodnoty je kód jazyka appky (ukládá se do nastavení).
+enum CueLang {
+  cs('cs-CZ', 'Čeština'),
+  en('en-US', 'English'),
+  de('de-DE', 'Deutsch'),
+  es('es-ES', 'Español'),
+  fr('fr-FR', 'Français'),
+  it('it-IT', 'Italiano'),
+  nl('nl-NL', 'Nederlands'),
+  pl('pl-PL', 'Polski'),
+  pt('pt-BR', 'Português'),
+  hu('hu-HU', 'Magyar'),
+  uk('uk-UA', 'Українська'),
+  ru('ru-RU', 'Русский'),
+  ja('ja-JP', '日本語'),
+  ko('ko-KR', '한국어'),
+  vi('vi-VN', 'Tiếng Việt');
+
+  final String tts;
+  final String nativeName;
+  const CueLang(this.tts, this.nativeName);
+
+  Locale get locale => Locale(name);
+
+  /// Jazyk telefonu, jinak angličtina.
+  static CueLang of(Locale l) =>
+      values.firstWhere((v) => v.name == l.languageCode, orElse: () => CueLang.en);
+}
 
 /// Co pacer v intervalu sdělí bez řeči.
 enum ToneSignal { none, speedUp, slowDown }
@@ -54,24 +84,17 @@ class CueBuilder {
     return Cue(parts.join(', '), tone);
   }
 
-  String _num(double v, int decimals) {
-    final s = v.toStringAsFixed(decimals);
-    return lang == CueLang.cs ? s.replaceAll('.', ',') : s;
-  }
+  AppLocalizations get _l => lookupAppLocalizations(lang.locale);
 
   String _distance(double m) {
     final v = m / unit.meters;
     final rounded = double.parse(v.toStringAsFixed(1));
-    final whole = rounded == rounded.roundToDouble();
-    final n = whole ? _num(rounded, 0) : _num(rounded, 1);
-    if (lang == CueLang.en) {
-      final w = unit == DistanceUnit.km ? 'kilometer' : 'mile';
-      return '$n ${rounded == 1 ? w : '${w}s'}';
+    final km = unit == DistanceUnit.km;
+    if (rounded == rounded.roundToDouble()) {
+      return km ? _l.cue_km(rounded.toInt()) : _l.cue_mi(rounded.toInt());
     }
-    if (unit == DistanceUnit.km) {
-      return '$n ${whole ? _csPlural(rounded.toInt(), 'kilometr', 'kilometry', 'kilometrů') : 'kilometru'}';
-    }
-    return '$n ${whole ? _csPlural(rounded.toInt(), 'míle', 'míle', 'mil') : 'míle'}';
+    final n = formatDecimal(rounded, 1, lang.name);
+    return km ? _l.cue_kmDecimal(n) : _l.cue_miDecimal(n);
   }
 
   /// "5 10" čte TTS přirozeně jako "pět deset"; "5:10" by četl jako čas.
@@ -82,30 +105,13 @@ class CueBuilder {
     return h > 0 ? '$h ${m.toString().padLeft(2, '0')} $ss' : '$m $ss';
   }
 
-  String _pace(double sPerKm) {
-    final perUnit = sPerKm * unit.meters / 1000.0;
-    return lang == CueLang.cs ? 'tempo ${_clock(perUnit)}' : 'pace ${_clock(perUnit)}';
-  }
+  String _pace(double sPerKm) => _l.cue_pace(_clock(sPerKm * unit.meters / 1000.0));
 
-  String _time(double s) => lang == CueLang.cs ? 'čas ${_clock(s)}' : 'time ${_clock(s)}';
+  String _time(double s) => _l.cue_time(_clock(s));
 
-  String _onTarget() => lang == CueLang.cs ? 'v plánu' : 'on target';
+  String _onTarget() => _l.cue_onTarget;
 
-  String _delta(int s, {required bool faster}) {
-    if (lang == CueLang.en) {
-      return '$s ${s == 1 ? 'second' : 'seconds'} ${faster ? 'faster' : 'slower'}';
-    }
-    return 'o $s ${_csPlural(s, 'sekundu', 'sekundy', 'sekund')} ${faster ? 'rychleji' : 'pomaleji'}';
-  }
+  String _delta(int s, {required bool faster}) => faster ? _l.cue_faster(s) : _l.cue_slower(s);
 
-  String _ghost(int m, bool ahead) {
-    if (lang == CueLang.en) return '$m meters ${ahead ? 'ahead' : 'behind'}';
-    return '$m ${_csPlural(m, 'metr', 'metry', 'metrů')} ${ahead ? 'napřed' : 'pozadu'}';
-  }
-
-  static String _csPlural(int n, String one, String few, String many) {
-    if (n == 1) return one;
-    if (n >= 2 && n <= 4) return few;
-    return many;
-  }
+  String _ghost(int m, bool ahead) => ahead ? _l.cue_ahead(m) : _l.cue_behind(m);
 }

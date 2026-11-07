@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../core/settings.dart';
+import '../l10n/l10n.dart';
 
 /// Jediný nákup v appce: odemčení importu GPX (non-consumable, 0,99).
 /// ID produktu musí být stejné v App Store Connect i Play Console.
@@ -41,7 +42,7 @@ class Purchases extends ChangeNotifier {
   Future<void> buy() async {
     final p = product;
     if (p == null) {
-      error = 'Obchod teď není dostupný.';
+      error = l10n.import_storeUnavailable;
       notifyListeners();
       return;
     }
@@ -74,7 +75,7 @@ class Purchases extends ChangeNotifier {
           await settings.set('importUnlocked', true, () => settings.importUnlocked = true);
           pending = false;
         case PurchaseStatus.error:
-          error = p.error?.message ?? 'Nákup se nepovedl.';
+          error = p.error?.message ?? l10n.import_purchaseFailed;
           pending = false;
         case PurchaseStatus.canceled:
           pending = false;

@@ -6,6 +6,7 @@ import '../core/track.dart';
 import '../core/units.dart';
 import '../gps/geo.dart';
 import '../map/tiles.dart';
+import '../l10n/l10n.dart';
 import 'app.dart';
 
 /// Ořez GPS šumu na startu nebo zapomenutého vypnutí na konci.
@@ -33,7 +34,7 @@ class _TrimScreenState extends State<TrimScreen> {
     final stats = computeStats(kept);
     final all = toLatLng(widget.points);
     return Scaffold(
-      appBar: AppBar(title: const Text('Oříznout běh')),
+      appBar: AppBar(title: Text(context.l.trim_title)),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -61,7 +62,7 @@ class _TrimScreenState extends State<TrimScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Ponechat ${formatDuration(_range.start / 1000)} – ${formatDuration(_range.end / 1000)}',
+                    context.l.trim_keep(formatDuration(_range.start / 1000), formatDuration(_range.end / 1000)),
                     style: const TextStyle(fontSize: 18),
                   ),
                   RangeSlider(
@@ -86,7 +87,7 @@ class _TrimScreenState extends State<TrimScreen> {
                             await s.db.trimRun(widget.run.id, _range.start.floor(), _range.end.ceil());
                             nav.pop(true);
                           },
-                    child: const Text('Uložit ořez'),
+                    child: Text(context.l.trim_save),
                   ),
                 ],
               ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// Jediné gesto v appce: posunutím doprava zastavit. V kapse se náhodou nestane.
 class SlideToStop extends StatefulWidget {
   final VoidCallback onStop;
-  final String label;
-  const SlideToStop({super.key, required this.onStop, this.label = 'Posuň pro stop'});
+  final String? label;
+  const SlideToStop({super.key, required this.onStop, this.label});
 
   @override
   State<SlideToStop> createState() => _SlideToStopState();
@@ -27,11 +29,19 @@ class _SlideToStopState extends State<SlideToStop> {
         ),
         child: Stack(
           children: [
-            Center(
-              child: Opacity(
-                opacity: (1 - _x / max).clamp(0, 1),
-                child: Text(widget.label,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+            // Popisek jen vpravo od knoflíku; delší překlady se zmenší.
+            Padding(
+              padding: const EdgeInsets.only(left: _h, right: 20),
+              child: Center(
+                child: Opacity(
+                  opacity: (1 - _x / max).clamp(0, 1),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(widget.label ?? context.l.run_slideToStop,
+                        maxLines: 1,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                  ),
+                ),
               ),
             ),
             Positioned(
@@ -48,8 +58,8 @@ class _SlideToStopState extends State<SlideToStop> {
                   margin: const EdgeInsets.all(0),
                   decoration: const BoxDecoration(color: Color(0xFFFF5252), shape: BoxShape.circle),
                   alignment: Alignment.center,
-                  child: const Text('STOP',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black)),
+                  child: Text(context.l.run_stop,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black)),
                 ),
               ),
             ),
