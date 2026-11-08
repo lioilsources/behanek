@@ -418,6 +418,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get notif_channel => 'Zapis biegu';
 
   @override
+  String get notif_liveChannel => 'Bieg na żywo';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -128,6 +128,7 @@
 
   "notif_recording": "Записую пробіжку",
   "notif_channel": "Запис пробіжки",
+  "notif_liveChannel": "Пробіжка в реальному часі",
 
   "cue_km": "{count, plural, one{{count} кілометр} few{{count} кілометри} many{{count} кілометрів} other{{count} кілометра}}",
   "cue_kmDecimal": "{value} кілометра",

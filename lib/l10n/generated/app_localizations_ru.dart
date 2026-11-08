@@ -417,6 +417,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notif_channel => 'Запись пробежки';
 
   @override
+  String get notif_liveChannel => 'Пробежка в реальном времени';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

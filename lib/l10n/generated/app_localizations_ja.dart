@@ -411,6 +411,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get notif_channel => 'ランの記録';
 
   @override
+  String get notif_liveChannel => 'ランのライブ表示';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

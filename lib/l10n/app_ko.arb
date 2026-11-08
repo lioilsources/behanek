@@ -128,6 +128,7 @@
 
   "notif_recording": "달리기 기록 중",
   "notif_channel": "달리기 기록",
+  "notif_liveChannel": "실시간 달리기 상태",
 
   "cue_km": "{count, plural, other{{count}킬로미터}}",
   "cue_kmDecimal": "{value}킬로미터",

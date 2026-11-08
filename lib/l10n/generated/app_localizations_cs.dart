@@ -417,6 +417,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get notif_channel => 'Záznam běhu';
 
   @override
+  String get notif_liveChannel => 'Průběh běhu';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

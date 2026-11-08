@@ -128,6 +128,7 @@
 
   "notif_recording": "Je run wordt vastgelegd",
   "notif_channel": "Run vastleggen",
+  "notif_liveChannel": "Live hardloopstatus",
 
   "cue_km": "{count, plural, =1{1 kilometer} other{{count} kilometer}}",
   "cue_kmDecimal": "{value} kilometer",

@@ -128,6 +128,7 @@
 
   "notif_recording": "Rögzítem a futásodat",
   "notif_channel": "Futás rögzítése",
+  "notif_liveChannel": "Futás élőben",
 
   "cue_km": "{count, plural, =1{1 kilométer} other{{count} kilométer}}",
   "cue_kmDecimal": "{value} kilométer",

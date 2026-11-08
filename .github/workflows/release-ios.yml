@@ -48,24 +48,34 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
-      - name: Provisioning profil
+      # Dva profily App Store: appka + widget extension s Live Activity.
+      - name: Provisioning profily
         env:
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+          PROFILE_APP: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+          PROFILE_LIVE: ${{ secrets.IOS_PROVISION_PROFILE_LIVE_BASE64 }}
         run: |
-          PP_PATH=$RUNNER_TEMP/profile.mobileprovision
-          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode > $PP_PATH
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          DECODED=$(security cms -D -i "$PP_PATH")
-          UUID=$(echo "$DECODED" | plutil -extract UUID raw -)
-          NAME=$(echo "$DECODED" | plutil -extract Name raw -)
-          APPID=$(echo "$DECODED" | plutil -extract Entitlements.application-identifier raw - | sed 's/^[^.]*\.//')
-          echo "Profil: $NAME ($UUID), bundle $APPID, platí do $(echo "$DECODED" | plutil -extract ExpirationDate raw -)"
-          [ "$APPID" = "com.ol1n.behanek" ] || { echo "::error::profil je pro $APPID, ne com.ol1n.behanek"; exit 1; }
-          cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID".mobileprovision
-          echo "PROFILE_NAME=$NAME" >> $GITHUB_ENV
+          install_profile() { # $1 = base64 profilu, $2 = očekávané bundle id, $3 = proměnná pro název
+            [ -n "$1" ] || { echo "::error::chybí provisioning profil pro $2"; exit 1; }
+            PP_PATH=$RUNNER_TEMP/$2.mobileprovision
+            echo -n "$1" | base64 --decode > "$PP_PATH"
+            DECODED=$(security cms -D -i "$PP_PATH")
+            UUID=$(echo "$DECODED" | plutil -extract UUID raw -)
+            NAME=$(echo "$DECODED" | plutil -extract Name raw -)
+            APPID=$(echo "$DECODED" | plutil -extract Entitlements.application-identifier raw - | sed 's/^[^.]*\.//')
+            echo "Profil: $NAME ($UUID), bundle $APPID, platí do $(echo "$DECODED" | plutil -extract ExpirationDate raw -)"
+            [ "$APPID" = "$2" ] || { echo "::error::profil je pro $APPID, ne $2"; exit 1; }
+            cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID".mobileprovision
+            echo "$3=$NAME" >> $GITHUB_ENV
+          }
+          install_profile "$PROFILE_APP" com.ol1n.behanek PROFILE_NAME
+          install_profile "$PROFILE_LIVE" com.ol1n.behanek.BehanekLive PROFILE_NAME_LIVE
 
-      - name: Ruční podpis jen pro Runner/Release
-        run: python3 scripts/ci_ios_signing.py "$PROFILE_NAME"
+      - name: Ruční podpis jen pro Release
+        run: |
+          python3 scripts/ci_ios_signing.py \
+            com.ol1n.behanek="$PROFILE_NAME" \
+            com.ol1n.behanek.BehanekLive="$PROFILE_NAME_LIVE"
 
       - name: Build Flutter iOS (bez podpisu)
         env:
@@ -89,6 +99,7 @@ jobs:
         run: |
           /usr/libexec/PlistBuddy -c "Set :teamID $TEAM_ID" ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c "Set :provisioningProfiles:com.ol1n.behanek $PROFILE_NAME" ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c "Set :provisioningProfiles:com.ol1n.behanek.BehanekLive $PROFILE_NAME_LIVE" ios/ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/Runner.xcarchive \
             -exportOptionsPlist ios/ExportOptions.plist \

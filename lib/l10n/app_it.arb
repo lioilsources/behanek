@@ -128,6 +128,7 @@
 
   "notif_recording": "Sto registrando la corsa",
   "notif_channel": "Registrazione corsa",
+  "notif_liveChannel": "Stato corsa in tempo reale",
 
   "cue_km": "{count, plural, =1{1 chilometro} many{{count} di chilometri} other{{count} chilometri}}",
   "cue_kmDecimal": "{value} chilometri",
