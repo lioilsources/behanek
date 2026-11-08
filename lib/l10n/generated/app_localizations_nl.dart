@@ -418,6 +418,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get notif_channel => 'Run vastleggen';
 
   @override
+  String get notif_liveChannel => 'Live hardloopstatus';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

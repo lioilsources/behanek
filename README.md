@@ -38,6 +38,11 @@ lib/ui/      history, run, detail, trim, settings, import
 - **Splity:** v DB vždy po km (podklad pro pacer); v detailu se pro míle přepočítají z bodů.
 - **Pauza = přerušení úseku:** mezera > 20 s mezi body se nepočítá do vzdálenosti ani času
   (platí pro živý záznam, ořez i import).
+- **Živý stav mimo appku:** `lib/gps/live_status.dart` → kanál `behanek/live`.
+  iOS: Live Activity + Dynamic Island (widget extension `ios/BehanekLive`, iOS 16.2+; na starších nic).
+  Android: foreground notifikace geolocatoru se přepisuje živými daty (stejné id 75415), na
+  Androidu 16+ jako Live Update (čip ve stavovém řádku). Čas tiká systém sám, data jdou ~1× za 5 s
+  a hned při pauze. Pro release iOS je potřeba druhý profil (`IOS_PROVISION_PROFILE_LIVE_BASE64`).
 
 ## Stav fází
 
@@ -49,7 +54,6 @@ lib/ui/      history, run, detail, trim, settings, import
   - Ovládání tlačítky sluchátek (media buttons). Na iOS remote commands dostává appka, která je
     „now playing“ — při běžící Spotify je to Spotify, ne Běhánek. Rozhodnout po spiku
     (`audio_service` by navíc přidal vlastní media notifikaci, což jde proti plánu).
-  - Živý čas/km v Android notifikaci (geolocator má text statický) a iOS Live Activity.
   - Metronom + ducking: na iOS je jedna audio session; během metronomu může být hudba
     ztlumená trvale. Ověřit ve spiku.
   - Haptika (na pozadí s telefonem v kapse nemá smysl) — místo ní tóny.

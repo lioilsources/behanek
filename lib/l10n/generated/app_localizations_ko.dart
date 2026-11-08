@@ -412,6 +412,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notif_channel => '달리기 기록';
 
   @override
+  String get notif_liveChannel => '실시간 달리기 상태';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

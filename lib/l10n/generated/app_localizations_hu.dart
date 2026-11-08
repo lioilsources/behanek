@@ -418,6 +418,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get notif_channel => 'Futás rögzítése';
 
   @override
+  String get notif_liveChannel => 'Futás élőben';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

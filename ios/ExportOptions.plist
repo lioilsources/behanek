@@ -12,6 +12,8 @@
     <dict>
         <key>com.ol1n.behanek</key>
         <string>REPLACED_IN_CI</string>
+        <key>com.ol1n.behanek.BehanekLive</key>
+        <string>REPLACED_IN_CI</string>
     </dict>
     <key>uploadSymbols</key>
     <true/>

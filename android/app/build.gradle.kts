@@ -64,3 +64,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // NotificationCompat.setRequestPromotedOngoing / setShortCriticalText (Android 16 Live Updates).
+    implementation("androidx.core:core:1.17.0")
+}

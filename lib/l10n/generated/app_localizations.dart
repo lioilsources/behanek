@@ -826,6 +826,12 @@ abstract class AppLocalizations {
   /// **'Run recording'**
   String get notif_channel;
 
+  /// No description provided for @notif_liveChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Live run status'**
+  String get notif_liveChannel;
+
   /// No description provided for @cue_km.
   ///
   /// In en, this message translates to:

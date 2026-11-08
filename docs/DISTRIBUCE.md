@@ -37,6 +37,7 @@ Hodnoty GitHub nejde zkopírovat z jiného repa — nastavit znovu (`gh secret s
 | Secret | Kde ho vzít |
 |---|---|
 | `IOS_PROVISION_PROFILE_BASE64` | developer.apple.com → Profiles → App Store profil pro `com.ol1n.behanek` → `base64 -i profil.mobileprovision` |
+| `IOS_PROVISION_PROFILE_LIVE_BASE64` | totéž pro widget extension s Live Activity: nejdřív Identifiers → nové App ID `com.ol1n.behanek.BehanekLive` (bez capabilities), pak App Store profil pro něj |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | nový upload klíč (viz níže); keystore zálohovat, bez něj nejde vydat aktualizace |
 | `FIREBASE_ANDROID_APP_ID` | Firebase konzole → přidat Android appku `com.ol1n.behanek` → App ID `1:…:android:…` |
 | `MAPY_API_KEY` | developer.mapy.com — bez něj build použije vývojové dlaždice, které do storu nesmí |
@@ -57,5 +58,5 @@ base64 -i behanek-upload.keystore | gh secret set ANDROID_KEYSTORE_BASE64 -R lio
 ## Podpis iOS
 
 Lokálně zůstává automatický podpis (`flutter build ios --release` na vlastní telefon funguje dál).
-V CI `scripts/ci_ios_signing.py` přepne jen Release konfiguraci cíle Runner na ruční podpis
-distribučním profilem; pody se nemění.
+V CI `scripts/ci_ios_signing.py` přepne jen Release konfiguraci cílů Runner a BehanekLive
+(widget extension s Live Activity) na ruční podpis distribučními profily; pody se nemění.

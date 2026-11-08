@@ -1,0 +1,3 @@
+// Jen kvůli FLUTTER_BUILD_NAME/NUMBER: verze extension musí sedět s appkou.
+// Pody se sem nezahrnují — extension žádné nepoužívá.
+#include "../Flutter/Generated.xcconfig"

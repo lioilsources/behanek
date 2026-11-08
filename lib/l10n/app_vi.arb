@@ -128,6 +128,7 @@
 
   "notif_recording": "Đang ghi buổi chạy",
   "notif_channel": "Ghi buổi chạy",
+  "notif_liveChannel": "Trạng thái chạy trực tiếp",
 
   "cue_km": "{count, plural, other{{count} ki-lô-mét}}",
   "cue_kmDecimal": "{value} ki-lô-mét",

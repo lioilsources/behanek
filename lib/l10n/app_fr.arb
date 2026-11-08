@@ -128,6 +128,7 @@
 
   "notif_recording": "Enregistrement de ta course",
   "notif_channel": "Enregistrement de course",
+  "notif_liveChannel": "Suivi de course en direct",
 
   "cue_km": "{count, plural, =1{1 kilomètre} many{{count} de kilomètres} other{{count} kilomètres}}",
   "cue_kmDecimal": "{value} kilomètres",

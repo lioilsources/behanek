@@ -128,6 +128,7 @@
 
   "notif_recording": "Dein Lauf wird aufgezeichnet",
   "notif_channel": "Laufaufzeichnung",
+  "notif_liveChannel": "Laufstatus live",
 
   "cue_km": "{count, plural, =1{1 Kilometer} other{{count} Kilometer}}",
   "cue_kmDecimal": "{value} Kilometer",

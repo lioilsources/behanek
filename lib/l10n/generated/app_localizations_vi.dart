@@ -418,6 +418,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get notif_channel => 'Ghi buổi chạy';
 
   @override
+  String get notif_liveChannel => 'Trạng thái chạy trực tiếp';
+
+  @override
   String cue_km(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

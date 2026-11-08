@@ -8,6 +8,7 @@ import '../core/settings.dart';
 import '../pacer/cue.dart';
 import '../pacer/form_model.dart';
 import 'geo.dart';
+import 'live_status.dart';
 import 'location_source.dart';
 import 'run_tracker.dart';
 
@@ -33,7 +34,11 @@ class RunController extends ChangeNotifier {
   final AppSettings settings;
   final AudioCues audio;
 
-  RunController(this.db, this.settings, this.audio);
+  /// Live Activity (iOS) / živá notifikace (Android).
+  final LiveRunStatus live;
+
+  RunController(this.db, this.settings, this.audio, {LiveRunStatus? live})
+      : live = live ?? LiveRunStatus();
 
   Phase phase = Phase.idle;
   int countdown = 0;
@@ -59,6 +64,7 @@ class RunController extends ChangeNotifier {
     final access = await LocationSource.ensurePermission();
     if (access != LocationAccess.granted) return access;
     _gps ??= LocationSource.stream().listen(_onFix, onError: (_) {});
+    unawaited(live.prepare());
     profile = FormProfile.build(await db.pastRuns(), now);
     notifyListeners();
     return access;
@@ -114,6 +120,7 @@ class RunController extends ChangeNotifier {
     phase = Phase.active;
     if (settings.metronome) audio.startMetronome(settings.metronomeBpm);
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    _pushLive(force: true);
     notifyListeners();
   }
 
@@ -136,6 +143,7 @@ class RunController extends ChangeNotifier {
   }
 
   void _onStateChanged(RunState s) {
+    _pushLive(force: true);
     if (s == RunState.running && settings.metronome) {
       audio.startMetronome(settings.metronomeBpm);
     } else if (s != RunState.running) {
@@ -164,7 +172,22 @@ class RunController extends ChangeNotifier {
       _nextCueAt += settings.cueIntervalS;
       unawaited(audio.play(currentCue(), settings.cueMode));
     }
+    _pushLive();
     notifyListeners();
+  }
+
+  /// Stav běhu do Live Activity / notifikace. Bez `force` se posílá nejvýš jednou za pár sekund.
+  void _pushLive({bool force = false}) {
+    final tr = tracker;
+    if (tr == null || (phase != Phase.active && phase != Phase.stopped)) return;
+    unawaited(live.update(
+      distanceM: tr.distanceM,
+      movingTimeS: tr.movingTimeS(now),
+      paceSPerKm: tr.state == RunState.running ? tr.currentPace : null,
+      paused: tr.state != RunState.running,
+      unit: settings.unit,
+      force: force,
+    ));
   }
 
   double? get targetPace {
@@ -210,6 +233,7 @@ class RunController extends ChangeNotifier {
     if (tr.state == RunState.running) tr.pause(now);
     audio.stopMetronome();
     phase = Phase.stopped;
+    _pushLive(force: true);
     notifyListeners();
   }
 
@@ -249,6 +273,7 @@ class RunController extends ChangeNotifier {
     audio.stopMetronome();
     await _gps?.cancel();
     _gps = null;
+    await live.end();
     tracker = null;
     _runId = null;
     lastFix = null;

@@ -152,6 +152,7 @@
 
   "notif_recording": "Recording your run",
   "notif_channel": "Run recording",
+  "notif_liveChannel": "Live run status",
 
   "cue_km": "{count, plural, =1{1 kilometer} other{{count} kilometers}}",
   "@cue_km": {"placeholders": {"count": {"type": "int"}}},
