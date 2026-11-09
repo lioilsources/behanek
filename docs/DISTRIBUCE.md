@@ -28,7 +28,7 @@ Hodnoty GitHub nejde zkopírovat z jiného repa — nastavit znovu (`gh secret s
 |---|---|
 | `IOS_P12_BASE64`, `IOS_P12_PASSWORD` | distribuční certifikát (Apple Distribution) |
 | `IOS_KEYCHAIN_PASSWORD` | libovolné heslo dočasné keychainy |
-| `IOS_TEAM_ID` | `P82HWPG7FN` |
+| `IOS_TEAM_ID` | Team ID Apple účtu (developer.apple.com → Membership) |
 | `APP_STORE_CONNECT_API_KEY_ID`, `…_ISSUER_ID`, `…_KEY_BASE64` | API klíč pro upload |
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | service account s rolí Firebase App Distribution Admin |
 

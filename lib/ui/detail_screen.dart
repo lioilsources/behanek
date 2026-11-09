@@ -223,7 +223,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       final span = (worst - best).clamp(1, double.infinity);
                       final f = 0.35 + 0.65 * (worst - sp.paceSPerKm) / span;
                       return Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Container(
                           width: c.maxWidth * f,
                           height: 14,
@@ -238,7 +238,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 SizedBox(
                   width: 64,
                   child: Text('${sp.elevDeltaM >= 0 ? '+' : '−'}${sp.elevDeltaM.abs().round()} m',
-                      textAlign: TextAlign.right, style: const TextStyle(color: Colors.white70)),
+                      textAlign: TextAlign.end, style: const TextStyle(color: Colors.white70)),
                 ),
               ],
             ),

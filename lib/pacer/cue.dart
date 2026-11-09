@@ -13,23 +13,69 @@ enum CueLang {
   it('it-IT', 'Italiano'),
   nl('nl-NL', 'Nederlands'),
   pl('pl-PL', 'Polski'),
-  pt('pt-BR', 'Português'),
+  pt('pt-BR', 'Português (Brasil)'),
   hu('hu-HU', 'Magyar'),
   uk('uk-UA', 'Українська'),
   ru('ru-RU', 'Русский'),
   ja('ja-JP', '日本語'),
   ko('ko-KR', '한국어'),
-  vi('vi-VN', 'Tiếng Việt');
+  vi('vi-VN', 'Tiếng Việt'),
+  ar('ar-SA', 'العربية'),
+  bn('bn-IN', 'বাংলা'),
+  ca('ca-ES', 'Català'),
+  da('da-DK', 'Dansk'),
+  el('el-GR', 'Ελληνικά'),
+  fi('fi-FI', 'Suomi'),
+  gu('gu-IN', 'ગુજરાતી'),
+  he('he-IL', 'עברית'),
+  hi('hi-IN', 'हिन्दी'),
+  hr('hr-HR', 'Hrvatski'),
+  id('id-ID', 'Bahasa Indonesia'),
+  kn('kn-IN', 'ಕನ್ನಡ'),
+  ml('ml-IN', 'മലയാളം'),
+  mr('mr-IN', 'मराठी'),
+  ms('ms-MY', 'Bahasa Melayu'),
+  nb('nb-NO', 'Norsk bokmål'),
+  or('or-IN', 'ଓଡ଼ିଆ'),
+  pa('pa-IN', 'ਪੰਜਾਬੀ'),
+  ptPT('pt-PT', 'Português (Portugal)'),
+  ro('ro-RO', 'Română'),
+  sk('sk-SK', 'Slovenčina'),
+  sl('sl-SI', 'Slovenščina'),
+  sv('sv-SE', 'Svenska'),
+  ta('ta-IN', 'தமிழ்'),
+  te('te-IN', 'తెలుగు'),
+  th('th-TH', 'ไทย'),
+  tr('tr-TR', 'Türkçe'),
+  ur('ur-PK', 'اردو'),
+  zh('zh-CN', '简体中文'),
+  zhHant('zh-TW', '繁體中文');
 
   final String tts;
   final String nativeName;
   const CueLang(this.tts, this.nativeName);
 
-  Locale get locale => Locale(name);
+  /// Locale textů hlášení; název hodnoty je kód jazyka appky, kromě variant s regionem/písmem.
+  Locale get locale => switch (this) {
+        ptPT => const Locale('pt', 'PT'),
+        zhHant => const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+        _ => Locale(name),
+      };
 
   /// Jazyk telefonu, jinak angličtina.
-  static CueLang of(Locale l) =>
-      values.firstWhere((v) => v.name == l.languageCode, orElse: () => CueLang.en);
+  static CueLang of(Locale l) {
+    switch (l.languageCode) {
+      case 'pt':
+        return l.countryCode == 'PT' ? ptPT : pt;
+      case 'zh':
+        final hant = l.scriptCode == 'Hant' ||
+            (l.scriptCode == null && const {'TW', 'HK', 'MO'}.contains(l.countryCode));
+        return hant ? zhHant : zh;
+      case 'no' || 'nn':
+        return nb;
+    }
+    return values.firstWhere((v) => v.name == l.languageCode, orElse: () => CueLang.en);
+  }
 }
 
 /// Co pacer v intervalu sdělí bez řeči.
@@ -93,7 +139,7 @@ class CueBuilder {
     if (rounded == rounded.roundToDouble()) {
       return km ? _l.cue_km(rounded.toInt()) : _l.cue_mi(rounded.toInt());
     }
-    final n = formatDecimal(rounded, 1, lang.name);
+    final n = formatDecimal(rounded, 1, lang.locale.toLanguageTag());
     return km ? _l.cue_kmDecimal(n) : _l.cue_miDecimal(n);
   }
 

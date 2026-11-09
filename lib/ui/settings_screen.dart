@@ -25,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
           children: [
             _choice<DistanceUnit>(l.settings_units, DistanceUnit.values, st.unit, (v) => v.label,
                 (v) => st.set('unit', v, () => st.unit = v)),
-            // 15 jazyků se do segmentů nevejde.
+            // 45 jazyků se do segmentů nevejde.
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Column(

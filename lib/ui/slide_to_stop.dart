@@ -20,6 +20,8 @@ class _SlideToStopState extends State<SlideToStop> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, c) {
       final max = c.maxWidth - _h;
+      // V RTL jazycích se táhne zprava doleva.
+      final rtl = Directionality.of(context) == TextDirection.rtl;
       return Container(
         height: _h,
         decoration: BoxDecoration(
@@ -29,9 +31,9 @@ class _SlideToStopState extends State<SlideToStop> {
         ),
         child: Stack(
           children: [
-            // Popisek jen vpravo od knoflíku; delší překlady se zmenší.
+            // Popisek jen za knoflíkem (ve směru tahu); delší překlady se zmenší.
             Padding(
-              padding: const EdgeInsets.only(left: _h, right: 20),
+              padding: const EdgeInsetsDirectional.only(start: _h, end: 20),
               child: Center(
                 child: Opacity(
                   opacity: (1 - _x / max).clamp(0, 1),
@@ -44,10 +46,10 @@ class _SlideToStopState extends State<SlideToStop> {
                 ),
               ),
             ),
-            Positioned(
-              left: _x,
+            PositionedDirectional(
+              start: _x,
               child: GestureDetector(
-                onHorizontalDragUpdate: (d) => setState(() => _x = (_x + d.delta.dx).clamp(0, max)),
+                onHorizontalDragUpdate: (d) => setState(() => _x = (_x + (rtl ? -d.delta.dx : d.delta.dx)).clamp(0, max)),
                 onHorizontalDragEnd: (_) {
                   if (_x > max * 0.85) widget.onStop();
                   setState(() => _x = 0);
