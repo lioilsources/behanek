@@ -10,7 +10,8 @@ Locale appLocale = const Locale('cs');
 
 AppLocalizations get l10n => lookupAppLocalizations(appLocale);
 
-String get localeTag => appLocale.toLanguageTag();
+/// Tag pro intl (čísla, data). Tradiční čínština nemá v intl `zh_Hant`, jen `zh_TW`.
+String get localeTag => appLocale.scriptCode == 'Hant' ? 'zh-TW' : appLocale.toLanguageTag();
 
 extension L10nContext on BuildContext {
   AppLocalizations get l => AppLocalizations.of(this);

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show Bidi;
 
 import '../core/db.dart';
 import '../core/units.dart';
@@ -14,6 +15,8 @@ Future<Uint8List> renderMonthReport(
   const w = 1080.0, h = 1350.0;
   const bg = Color(0xFF0B0B0B), fg = Colors.white, dim = Color(0xFF9E9E9E), accent = Color(0xFFC6FF00);
   final l = l10n;
+  // Rozvržení obrázku je pevné, ale text v RTL jazycích potřebuje svůj směr (pořadí čísel a slov).
+  final dir = Bidi.isRtlLanguage(localeTag) ? TextDirection.rtl : TextDirection.ltr;
   final rec = ui.PictureRecorder();
   final c = Canvas(rec, const Rect.fromLTWH(0, 0, w, h));
   c.drawRect(const Rect.fromLTWH(0, 0, w, h), Paint()..color = bg);
@@ -22,7 +25,7 @@ Future<Uint8List> renderMonthReport(
       {Color color = fg, FontWeight weight = FontWeight.w600, double maxW = w - 120}) {
     final tp = TextPainter(
       text: TextSpan(text: s, style: TextStyle(color: color, fontSize: size, fontWeight: weight)),
-      textDirection: TextDirection.ltr,
+      textDirection: dir,
     )..layout(maxWidth: maxW);
     tp.paint(c, Offset(x, y));
   }

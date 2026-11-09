@@ -121,7 +121,7 @@ class BigStat extends StatelessWidget {
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: Text(value,
                 style: TextStyle(
                   fontSize: size,
