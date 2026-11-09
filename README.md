@@ -15,12 +15,15 @@ flutter run --dart-define=MAPY_API_KEY=...   # bez klíče: OpenTopoMap + Esri (
 lib/core/    db.dart (drift: runs, track_points, splits, settings), settings, units, track
 lib/gps/     geo (haversine, filtr, statistiky, splity), run_tracker (živý výpočet, auto-pauza),
              location_source (geolocator 1 Hz, foreground service / background mode), run_controller
-lib/pacer/   form_model (medián formy, ghost), cue (texty cs/en, tóny)
+lib/pacer/   form_model (medián formy, ghost), cue (hlášení ve 45 jazycích, tóny)
 lib/audio/   audio_cues (TTS + ducking, tóny, metronom)
 lib/map/     tiles (Mapy.com / fallback), route_thumb
 lib/export/  gpx, importer (GPX/ZIP/.gz), share (GPX, ZIP záloha, PNG), report, purchases (IAP)
 lib/ui/      history, run, detail, trim, settings, import
 ```
+
+Texty obchodů jsou v `store/<jazyk>.json` (45 jazyků, nahrávají se ručně). Limity a kódy jazyků pro
+App Store Connect / Play Console: `python3 tools/store_check.py`; iOS prompt polohy z nich: `python3 tools/ios_l10n.py`.
 
 ## Rozhodnutí (otevřené otázky z plánu)
 
