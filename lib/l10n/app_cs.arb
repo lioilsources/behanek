@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "{steps} kroků/min",
   "settings_mapLayer": "Mapový podklad",
   "settings_backup": "Zálohovat všechny běhy (ZIP s GPX)",
-  "settings_privacy": "Žádná data neopouští telefon. Běhánek nemá účet, server, analytiku ani reklamy.",
+  "settings_privacy": "Běhy, trasy a poloha zůstávají jen v telefonu. Běhánek nemá účet ani reklamy a nepoužívá analytiku třetích stran.",
+  "settings_stats": "Anonymní statistiky používání",
+  "settings_statsHelp": "Které obrazovky a funkce se používají, nikdy poloha ani trasy. Pomáhá zlepšovat Běhánek.",
 
   "map_satellite": "Satelit",
   "map_topo": "Turistická",

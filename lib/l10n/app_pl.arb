@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "{steps} kr./min",
   "settings_mapLayer": "Podkład mapy",
   "settings_backup": "Kopia wszystkich biegów (ZIP z GPX)",
-  "settings_privacy": "Żadne dane nie opuszczają telefonu. Běhánek nie ma konta, serwera, analityki ani reklam.",
+  "settings_privacy": "Biegi, trasy i lokalizacja zostają w telefonie. Běhánek nie ma konta ani reklam i nie używa analityki firm trzecich.",
+  "settings_stats": "Anonimowe statystyki użycia",
+  "settings_statsHelp": "Które ekrany i funkcje są używane, nigdy lokalizacja ani trasy. Pomaga ulepszać Běhánek.",
 
   "map_satellite": "Satelita",
   "map_topo": "Turystyczna",

@@ -1,7 +1,7 @@
 name: behanek
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.12.2
@@ -23,6 +23,10 @@ dependencies:
   in_app_purchase: ^3.3.1
   intl: any
   just_audio: ^0.10.6
+  ol1n_telemetry:
+    git:
+      url: https://github.com/lioilsources/Ol1nTelemetry.git
+      ref: v0.1.0
   latlong2: ^0.10.1
   path_provider: ^2.1.6
   share_plus: ^13.3.1

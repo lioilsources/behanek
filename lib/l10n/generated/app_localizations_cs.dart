@@ -98,7 +98,14 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Žádná data neopouští telefon. Běhánek nemá účet, server, analytiku ani reklamy.';
+      'Běhy, trasy a poloha zůstávají jen v telefonu. Běhánek nemá účet ani reklamy a nepoužívá analytiku třetích stran.';
+
+  @override
+  String get settings_stats => 'Anonymní statistiky používání';
+
+  @override
+  String get settings_statsHelp =>
+      'Které obrazovky a funkce se používají, nikdy poloha ani trasy. Pomáhá zlepšovat Běhánek.';
 
   @override
   String get map_satellite => 'Satelit';

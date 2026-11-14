@@ -36,6 +36,13 @@ jobs:
           sed -i -E "s/^version: .*/version: ${NEW}/" pubspec.yaml
           echo "Build version: ${NEW}"
 
+      # Měření hlásí verzi z konstanty (docs/telemetry.md); musí sedět s tagem.
+      - name: Verze pro měření
+        run: |
+          BASE=$(grep '^version:' pubspec.yaml | sed -E 's/^version: ([0-9.]+).*/\1/')
+          CONST=$(sed -nE "s/^const kAppVersion = '([^']+)';/\1/p" lib/telemetry/telemetry_dictionary.dart)
+          [ "$BASE" = "$CONST" ] || { echo "::error::kAppVersion je $CONST, build je $BASE — zvedni verzi v pubspec.yaml i v lib/telemetry/telemetry_dictionary.dart"; exit 1; }
+
       - name: Keystore a key.properties
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -51,8 +58,8 @@ jobs:
         env:
           MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
         run: |
-          flutter build appbundle --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY"
-          flutter build apk --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY"
+          flutter build appbundle --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY" --dart-define=TELEMETRY_KEY=${{ secrets.TELEMETRY_KEY }} --dart-define=TELEMETRY_HOST=${{ secrets.TELEMETRY_HOST }}
+          flutter build apk --release --dart-define=MAPY_API_KEY="$MAPY_API_KEY" --dart-define=TELEMETRY_KEY=${{ secrets.TELEMETRY_KEY }} --dart-define=TELEMETRY_HOST=${{ secrets.TELEMETRY_HOST }}
 
       - name: Ověřit podpis APK
         run: |

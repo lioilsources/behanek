@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../audio/audio_cues.dart';
 import '../core/db.dart';
 import '../core/settings.dart';
 import '../pacer/cue.dart';
 import '../pacer/form_model.dart';
+import '../telemetry/telemetry_dictionary.dart';
 import 'geo.dart';
 import 'location_source.dart';
 import 'run_tracker.dart';
@@ -50,6 +52,10 @@ class RunController extends ChangeNotifier {
   PacerChoice pacer = const FormPacer();
   double _nextCueAt = 0;
 
+  /// Měření: jeden běh od startu po uložení / zahození (`run_start` / `run_end`).
+  TelemetryFlow? _flow;
+  bool _resumedAfterStop = false;
+
   DateTime get now => DateTime.now();
 
   bool get hasGpsFix => lastFix != null && lastFix!.accuracy <= 25;
@@ -76,6 +82,7 @@ class RunController extends ChangeNotifier {
     pacer = c;
     ghost = null;
     if (c is GhostPacer) {
+      Telemetry.feature('ghost');
       ghost = Ghost(c.run.id, c.run.startedAt, await db.pointsOf(c.run.id));
     }
     notifyListeners();
@@ -98,6 +105,23 @@ class RunController extends ChangeNotifier {
   Future<void> start() async {
     if (phase != Phase.idle) return;
     phase = Phase.countdown;
+    _resumedAfterStop = false;
+    _flow = Telemetry.flow(
+      'run',
+      {
+        'pacer': pacer is GhostPacer
+            ? 'ghost'
+            : profile == null
+                ? 'none'
+                : 'form',
+        'pacer_goal': settings.pacerTarget.name,
+        'cues': settings.cueMode.name,
+        'cue_interval': '${settings.cueIntervalS}',
+        'auto_pause': settings.autoPause,
+        'metronome': settings.metronome,
+      },
+      _runEndProps,
+    );
     await audio.setLanguage(settings.cueLang);
     for (countdown = 3; countdown > 0; countdown--) {
       notifyListeners();
@@ -117,8 +141,20 @@ class RunController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Vlastnosti `run_end`: jen pásmo času v pohybu, žádná vzdálenost ani poloha.
+  Map<String, Object> _runEndProps() => {
+        'duration_band': runDurationBand(tracker?.movingTimeS(now) ?? 0),
+        'resumed': _resumedAfterStop,
+      };
+
+  void _endFlow(String result) {
+    _flow?.end(result, _runEndProps());
+    _flow = null;
+  }
+
   void cancelCountdown() {
     if (phase == Phase.countdown) {
+      _endFlow('cancel');
       phase = Phase.idle;
       notifyListeners();
     }
@@ -147,6 +183,7 @@ class RunController extends ChangeNotifier {
     final tr = tracker;
     if (tr == null || phase != Phase.active) return;
     if (tr.state == RunState.running) {
+      Telemetry.feature('manual_pause');
       tr.pause(now);
     } else {
       tr.resume(now);
@@ -215,6 +252,7 @@ class RunController extends ChangeNotifier {
 
   void continueRun() {
     if (phase != Phase.stopped) return;
+    _resumedAfterStop = true;
     phase = Phase.active;
     tracker?.resume(now);
     _onStateChanged(RunState.running);
@@ -228,17 +266,22 @@ class RunController extends ChangeNotifier {
     await _flush();
     final stats = tr.finish(now);
     if (tr.points.length < 2) {
+      _endFlow('too_short');
       await db.discardRun(id);
       await _reset();
       return null;
     }
     await db.finishRun(id, stats, endedAt: now);
+    _endFlow('ok');
+    // První uložený vlastní běh = první skutečný užitek appky.
+    Telemetry.activation();
     await _reset();
     return id;
   }
 
   Future<void> discard() async {
     final id = _runId;
+    _endFlow('discard');
     if (id != null) await db.discardRun(id);
     await _reset();
   }

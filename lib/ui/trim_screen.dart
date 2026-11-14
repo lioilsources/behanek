@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/db.dart';
 import '../core/track.dart';
@@ -83,6 +84,7 @@ class _TrimScreenState extends State<TrimScreen> {
                         ? null
                         : () async {
                             setState(() => _saving = true);
+                            Telemetry.feature('trim');
                             final nav = Navigator.of(context);
                             await s.db.trimRun(widget.run.id, _range.start.floor(), _range.end.ceil());
                             nav.pop(true);

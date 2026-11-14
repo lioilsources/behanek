@@ -98,7 +98,14 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Жодні дані не залишають телефон. У Běhánek немає акаунта, сервера, аналітики й реклами.';
+      'Пробіжки, маршрути й місцезнаходження залишаються в телефоні. У Běhánek немає акаунта й реклами, і він не використовує сторонню аналітику.';
+
+  @override
+  String get settings_stats => 'Анонімна статистика використання';
+
+  @override
+  String get settings_statsHelp =>
+      'Які екрани й функції використовуються, але ніколи не місцезнаходження чи маршрути. Допомагає покращувати Běhánek.';
 
   @override
   String get map_satellite => 'Супутник';
