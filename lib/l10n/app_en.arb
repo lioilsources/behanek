@@ -33,7 +33,9 @@
   "@settings_stepsPerMin": {"placeholders": {"steps": {"type": "int"}}},
   "settings_mapLayer": "Map",
   "settings_backup": "Back up all runs (ZIP of GPX)",
-  "settings_privacy": "No data ever leaves your phone. Běhánek has no account, no server, no analytics and no ads.",
+  "settings_privacy": "Your runs, routes and location stay on your phone. Běhánek has no account and no ads, and uses no third-party analytics.",
+  "settings_stats": "Anonymous usage statistics",
+  "settings_statsHelp": "Which screens and features get used, never your location or routes. Helps improve Běhánek.",
 
   "map_satellite": "Satellite",
   "map_topo": "Outdoor",

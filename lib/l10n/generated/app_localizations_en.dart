@@ -98,7 +98,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'No data ever leaves your phone. Běhánek has no account, no server, no analytics and no ads.';
+      'Your runs, routes and location stay on your phone. Běhánek has no account and no ads, and uses no third-party analytics.';
+
+  @override
+  String get settings_stats => 'Anonymous usage statistics';
+
+  @override
+  String get settings_statsHelp =>
+      'Which screens and features get used, never your location or routes. Helps improve Běhánek.';
 
   @override
   String get map_satellite => 'Satellite';

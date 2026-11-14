@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "{steps} lépés/perc",
   "settings_mapLayer": "Térkép",
   "settings_backup": "Minden futás mentése (ZIP GPX-ekkel)",
-  "settings_privacy": "Semmilyen adat nem hagyja el a telefonodat. A Běhánekben nincs fiók, szerver, analitika és reklám.",
+  "settings_privacy": "A futásaid, útvonalaid és a helyzeted a telefonodon maradnak. A Běhánekben nincs fiók és reklám, és nem használ harmadik féltől származó analitikát.",
+  "settings_stats": "Névtelen használati statisztika",
+  "settings_statsHelp": "Mely képernyőket és funkciókat használod, soha a helyzetedet vagy az útvonalaidat. Segít jobbá tenni a Běháneket.",
 
   "map_satellite": "Műhold",
   "map_topo": "Turista",

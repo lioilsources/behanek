@@ -98,7 +98,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      '데이터는 절대 휴대폰 밖으로 나가지 않아요. Běhánek에는 계정, 서버, 분석, 광고가 없어요.';
+      '달리기 기록, 경로, 위치는 휴대폰에만 남아요. Běhánek에는 계정과 광고가 없고 제3자 분석 도구도 쓰지 않아요.';
+
+  @override
+  String get settings_stats => '익명 사용 통계';
+
+  @override
+  String get settings_statsHelp =>
+      '어떤 화면과 기능이 쓰이는지만 보내고 위치나 경로는 절대 보내지 않아요. Běhánek을 개선하는 데 도움이 돼요.';
 
   @override
   String get map_satellite => '위성';

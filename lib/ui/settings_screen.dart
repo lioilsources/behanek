@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/settings.dart';
 import '../core/units.dart';
@@ -92,7 +93,10 @@ class SettingsScreen extends StatelessWidget {
                 (v) => st.set('mapLayer', v, () => st.mapLayer = v)),
             const Divider(height: 40),
             OutlinedButton(
-              onPressed: () async => shareAllRunsZip(s.db, await s.db.watchRuns().first),
+              onPressed: () async {
+                Telemetry.feature('backup');
+                await shareAllRunsZip(s.db, await s.db.watchRuns().first);
+              },
               child: Text(l.settings_backup),
             ),
             const SizedBox(height: 24),
@@ -100,6 +104,20 @@ class SettingsScreen extends StatelessWidget {
               l.settings_privacy,
               style: const TextStyle(color: Colors.white60),
             ),
+            // Vypínač jen v buildu, který má kam posílat (s klíčem).
+            if (Telemetry.isConfigured)
+              StatefulBuilder(
+                builder: (context, setState) => SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l.settings_stats, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                  subtitle: Text(l.settings_statsHelp, style: const TextStyle(color: Colors.white60)),
+                  value: Telemetry.isEnabled,
+                  onChanged: (on) async {
+                    await Telemetry.setEnabled(on);
+                    setState(() {});
+                  },
+                ),
+              ),
           ],
         ),
       ),

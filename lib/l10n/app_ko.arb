@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "분당 {steps}보",
   "settings_mapLayer": "지도",
   "settings_backup": "모든 달리기 백업 (GPX ZIP)",
-  "settings_privacy": "데이터는 절대 휴대폰 밖으로 나가지 않아요. Běhánek에는 계정, 서버, 분석, 광고가 없어요.",
+  "settings_privacy": "달리기 기록, 경로, 위치는 휴대폰에만 남아요. Běhánek에는 계정과 광고가 없고 제3자 분석 도구도 쓰지 않아요.",
+  "settings_stats": "익명 사용 통계",
+  "settings_statsHelp": "어떤 화면과 기능이 쓰이는지만 보내고 위치나 경로는 절대 보내지 않아요. Běhánek을 개선하는 데 도움이 돼요.",
 
   "map_satellite": "위성",
   "map_topo": "지형",

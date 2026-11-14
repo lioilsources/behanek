@@ -32,6 +32,13 @@ jobs:
           sed -i.bak -E "s/^version: .*/version: ${NEW}/" pubspec.yaml && rm -f pubspec.yaml.bak
           echo "Build version: ${NEW}"
 
+      # Měření hlásí verzi z konstanty (docs/telemetry.md); musí sedět s tagem.
+      - name: Verze pro měření
+        run: |
+          BASE=$(grep '^version:' pubspec.yaml | sed -E 's/^version: ([0-9.]+).*/\1/')
+          CONST=$(sed -nE "s/^const kAppVersion = '([^']+)';/\1/p" lib/telemetry/telemetry_dictionary.dart)
+          [ "$BASE" = "$CONST" ] || { echo "::error::kAppVersion je $CONST, build je $BASE — zvedni verzi v pubspec.yaml i v lib/telemetry/telemetry_dictionary.dart"; exit 1; }
+
       - name: Podpisový certifikát
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.IOS_P12_BASE64 }}
@@ -70,7 +77,7 @@ jobs:
       - name: Build Flutter iOS (bez podpisu)
         env:
           MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
-        run: flutter build ios --release --no-codesign --dart-define=MAPY_API_KEY="$MAPY_API_KEY"
+        run: flutter build ios --release --no-codesign --dart-define=MAPY_API_KEY="$MAPY_API_KEY" --dart-define=TELEMETRY_KEY=${{ secrets.TELEMETRY_KEY }} --dart-define=TELEMETRY_HOST=${{ secrets.TELEMETRY_HOST }}
 
       - name: Archive
         env:

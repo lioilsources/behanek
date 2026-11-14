@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/db.dart';
 import '../core/settings.dart';
@@ -90,7 +91,11 @@ class _DetailScreenState extends State<DetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           OutlinedButton(
-                              onPressed: () => shareRunGpx(s.db, r), child: Text(l.detail_exportGpx)),
+                              onPressed: () {
+                                Telemetry.feature('gpx_export');
+                                shareRunGpx(s.db, r);
+                              },
+                              child: Text(l.detail_exportGpx)),
                           const SizedBox(height: 12),
                           OutlinedButton(
                             onPressed: pts.length < 2
@@ -99,6 +104,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                     final changed = await Navigator.push<bool>(
                                         context,
                                         MaterialPageRoute(
+                                            settings: const RouteSettings(name: '/trim'),
                                             builder: (_) => TrimScreen(run: r, points: pts)));
                                     if (changed == true) {
                                       thumbCache.remove(r.id);

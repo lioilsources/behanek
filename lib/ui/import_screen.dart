@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/units.dart';
 import '../export/importer.dart';
@@ -20,10 +21,37 @@ class _ImportScreenState extends State<ImportScreen> {
   bool _busy = false;
   String? _result;
 
+  /// Měření: od výběru souborů po uložení, nebo odchod z obrazovky.
+  TelemetryFlow? _flow;
+  int _failed = 0;
+  late final Services _s;
+
+  @override
+  void initState() {
+    super.initState();
+    _s = App.of(context);
+  }
+
+  void _endFlow(String result, int runs) {
+    _flow?.end(result, {'runs': runs, 'failed': _failed});
+    _flow = null;
+  }
+
+  @override
+  void dispose() {
+    // Odchod bez uložení: zamčený import skončil náhledem, jinak zrušeno.
+    _endFlow(_items != null && !_s.settings.importUnlocked ? 'preview' : 'cancel', 0);
+    super.dispose();
+  }
+
   Future<void> _pick() async {
     final db = App.of(context).db;
+    _flow ??= Telemetry.flow('import', const {}, () => {'runs': 0, 'failed': _failed});
     final files = await FilePicker.pickFiles(type: FileType.any);
-    if (files.isEmpty) return;
+    if (files.isEmpty) {
+      if (_items == null) _endFlow('cancel', 0);
+      return;
+    }
     setState(() {
       _busy = true;
       _result = null;
@@ -40,6 +68,14 @@ class _ImportScreenState extends State<ImportScreen> {
     }
     items.sort((a, b) => (b.gpx?.startedAt ?? DateTime(0)).compareTo(a.gpx?.startedAt ?? DateTime(0)));
     if (!mounted) return;
+    _failed = items.where((c) => c.error != null).length;
+    if (_failed > 0) Telemetry.errorShown('import_file');
+    if (!items.any((c) => c.importable)) {
+      _endFlow('empty', 0);
+    } else if (!_s.settings.importUnlocked) {
+      // Náhled je zdarma, uložit všechno jde až po nákupu.
+      Telemetry.lockedTap('import_all');
+    }
     setState(() {
       _items = items;
       _busy = false;
@@ -49,11 +85,15 @@ class _ImportScreenState extends State<ImportScreen> {
   Future<void> _import() async {
     final db = App.of(context).db;
     setState(() => _busy = true);
+    _flow ??= Telemetry.flow('import', const {}, () => {'runs': 0, 'failed': _failed});
     var ok = 0, skipped = 0;
     for (final c in _items!.where((c) => c.importable)) {
       final id = await db.importRun(c.gpx!.startedAt, c.gpx!.points, notes: c.gpx!.name);
       id == null ? skipped++ : ok++;
     }
+    Telemetry.feature('import');
+    _failed += skipped;
+    _endFlow('ok', ok);
     if (!mounted) return;
     setState(() {
       _busy = false;
