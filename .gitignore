@@ -57,3 +57,16 @@ tools/appicon/output/
 # Výběrová stránka se skládá z output/ — v gitu jen šablona
 tools/appicon/sheet/img/
 tools/appicon/sheet/out.html
+# devconv:start
+.env
+.env.*
+!.env.example
+*.p8
+*.jks
+key.properties
+.claude/settings.local.json
+CLAUDE.local.md
+build/
+.flutter-plugins
+lib/**/secrets.dart
+# devconv:end
