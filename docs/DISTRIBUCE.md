@@ -1,7 +1,8 @@
 # Distribuce Běhánka
 
 Stejný postup jako u Kiriana: **tag `v*` → GitHub Actions → iOS do TestFlightu, Android do
-Firebase App Distribution**, oba buildy i do GitHub Release.
+Firebase App Distribution a do interního testu v Google Play**, oba buildy i do GitHub Release.
+Do produkce se Android build povyšuje ručně v Play Console (Testování a vydání → Interní testování → Povýšit vydání).
 
 ```
 git tag v0.1.0 && git push origin v0.1.0     # alpha/beta/rc v názvu tagu = prerelease
@@ -14,7 +15,7 @@ TestFlightu / App Distribution, GitHub Release nevznikne.
 |---|---|---|
 | `ci.yml` | každý push / PR | `flutter analyze` + `flutter test` |
 | `release-ios.yml` | tag `v*` | IPA + dSYM do Release, upload do TestFlightu |
-| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `Alfa` ve Firebase |
+| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `Alfa` ve Firebase, AAB do interního testu v Play |
 
 Verze buildu = tag bez `v` + číslo běhu (`v0.2.0` → `0.2.0+17`).
 
@@ -39,6 +40,7 @@ Hodnoty GitHub nejde zkopírovat z jiného repa — nastavit znovu (`gh secret s
 | `IOS_PROVISION_PROFILE_BASE64` | developer.apple.com → Profiles → App Store profil pro `com.ol1n.behanek` → `base64 -i profil.mobileprovision` |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | nový upload klíč (viz níže); keystore zálohovat, bez něj nejde vydat aktualizace |
 | `FIREBASE_ANDROID_APP_ID` | Firebase konzole → přidat Android appku `com.ol1n.behanek` → App ID `1:…:android:…` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | JSON klíč service accountu `google-play-publisher@…` (Play Console → Uživatelé a oprávnění, u Běhánka vydávání a úprava konceptů) |
 | `MAPY_API_KEY` | developer.mapy.com — bez něj build použije vývojové dlaždice, které do storu nesmí |
 
 ```
