@@ -1,7 +1,7 @@
 name: Release Android
 
 # Tag v1.2.3 → AAB + APK do GitHub Release, APK testerům přes Firebase App Distribution,
-# AAB do Google Play (interní test; do produkce se povyšuje v Play Console).
+# AAB rovnou do produkce v Google Play (firemní účet, interní test není potřeba).
 on:
   push:
     tags: ['v*']
@@ -86,7 +86,7 @@ jobs:
           file: build/app/outputs/flutter-apk/app-release.apk
 
       # Jen z tagu: versionCode = číslo běhu, ruční běhy by ho v Play zbytečně spotřebovaly.
-      - name: Google Play (interní test)
+      - name: Google Play (produkce)
         if: startsWith(github.ref, 'refs/tags/')
         uses: r0adkll/upload-google-play@v1
         with:
@@ -94,5 +94,5 @@ jobs:
           packageName: com.ol1n.behanek
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
           releaseName: ${{ github.ref_name }}
-          track: internal
+          track: production
           status: completed

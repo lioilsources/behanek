@@ -1,8 +1,8 @@
 # Distribuce Běhánka
 
 Stejný postup jako u Kiriana: **tag `v*` → GitHub Actions → iOS do TestFlightu, Android do
-Firebase App Distribution a do interního testu v Google Play**, oba buildy i do GitHub Release.
-Do produkce se Android build povyšuje ručně v Play Console (Testování a vydání → Interní testování → Povýšit vydání).
+Firebase App Distribution a rovnou do produkce v Google Play**, oba buildy i do GitHub Release.
+Firemní účet nepotřebuje testovací kanál; vydání jde po kontrole Googlu všem uživatelům.
 
 ```
 git tag v0.1.0 && git push origin v0.1.0     # alpha/beta/rc v názvu tagu = prerelease
@@ -15,7 +15,7 @@ TestFlightu / App Distribution, GitHub Release nevznikne.
 |---|---|---|
 | `ci.yml` | každý push / PR | `flutter analyze` + `flutter test` |
 | `release-ios.yml` | tag `v*` | IPA + dSYM do Release, upload do TestFlightu |
-| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `Alfa` ve Firebase, AAB do interního testu v Play |
+| `release-android.yml` | tag `v*` | AAB + APK do Release, APK skupině `Alfa` ve Firebase, AAB do produkce v Play |
 
 Verze buildu = tag bez `v` + číslo běhu (`v0.2.0` → `0.2.0+17`).
 
