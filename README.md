@@ -9,6 +9,11 @@ flutter test
 flutter run --dart-define=MAPY_API_KEY=...   # bez klíče: OpenTopoMap + Esri (jen vývoj)
 ```
 
+Anonymní statistiky používání (`ol1n_telemetry`): slovník v `docs/telemetry.md`, kód v
+`lib/telemetry/`. Bez `TELEMETRY_KEY` a `TELEMETRY_HOST` (`--dart-define`) je build tichý a vypínač
+v nastavení se nezobrazuje; `--dart-define=TELEMETRY_DEBUG=true` vypisuje události do konzole.
+Poloha, trasy ani vzdálenosti se neposílají.
+
 ## Struktura
 
 ```

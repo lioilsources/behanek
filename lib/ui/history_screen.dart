@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/db.dart';
 import '../core/track.dart';
@@ -25,11 +26,13 @@ class HistoryScreen extends StatelessWidget {
         actions: [
           TextButton(
               onPressed: () =>
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportScreen())),
+                  Navigator.push(context, MaterialPageRoute(
+                      settings: const RouteSettings(name: '/import'), builder: (_) => const ImportScreen())),
               child: Text(context.l.history_import)),
           TextButton(
               onPressed: () =>
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                  Navigator.push(context, MaterialPageRoute(
+                      settings: const RouteSettings(name: '/settings'), builder: (_) => const SettingsScreen())),
               child: Text(context.l.history_settings)),
         ],
       ),
@@ -58,7 +61,8 @@ class HistoryScreen extends StatelessWidget {
         child: FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(72)),
           onPressed: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const RunScreen())),
+              Navigator.push(context, MaterialPageRoute(
+                  settings: const RouteSettings(name: '/run'), builder: (_) => const RunScreen())),
           child: Text(context.l.history_run, style: const TextStyle(fontSize: 26)),
         ),
       ),
@@ -137,6 +141,7 @@ class _MonthHeader extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
+              Telemetry.feature('month_report');
               final png = await renderMonthReport(m.month, m.runs, unit);
               await sharePng(png, 'behanek-${m.month.year}-${m.month.month}.png');
             },
@@ -162,7 +167,8 @@ class _RunTile extends StatelessWidget {
     final cached = thumbCache[r.id];
     return InkWell(
       onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(runId: r.id))),
+          Navigator.push(context, MaterialPageRoute(
+              settings: const RouteSettings(name: '/detail'), builder: (_) => DetailScreen(runId: r.id))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(

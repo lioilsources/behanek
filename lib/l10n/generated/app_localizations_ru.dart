@@ -98,7 +98,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Никакие данные не покидают телефон. У Běhánek нет аккаунта, сервера, аналитики и рекламы.';
+      'Пробежки, маршруты и местоположение остаются в телефоне. У Běhánek нет аккаунта и рекламы, и он не использует стороннюю аналитику.';
+
+  @override
+  String get settings_stats => 'Анонимная статистика использования';
+
+  @override
+  String get settings_statsHelp =>
+      'Какие экраны и функции используются, но никогда не местоположение и не маршруты. Помогает улучшать Běhánek.';
 
   @override
   String get map_satellite => 'Спутник';

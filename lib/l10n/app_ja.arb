@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "{steps}歩/分",
   "settings_mapLayer": "地図",
   "settings_backup": "全ランをバックアップ（GPXのZIP）",
-  "settings_privacy": "データがスマホの外に出ることはありません。Běhánekにはアカウントもサーバーも分析も広告もありません。",
+  "settings_privacy": "ランの記録、ルート、位置情報はスマホの中だけに残ります。Běhánekにはアカウントも広告もなく、第三者の分析ツールも使いません。",
+  "settings_stats": "匿名の利用統計",
+  "settings_statsHelp": "どの画面や機能が使われているかだけで、位置情報やルートは送りません。Běhánekの改善に役立ちます。",
 
   "map_satellite": "衛星",
   "map_topo": "地形",

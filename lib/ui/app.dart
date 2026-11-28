@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../audio/audio_cues.dart';
 import '../core/db.dart';
@@ -7,6 +8,7 @@ import '../core/settings.dart';
 import '../export/purchases.dart';
 import '../gps/run_controller.dart';
 import '../l10n/l10n.dart';
+import '../telemetry/telemetry_dictionary.dart';
 import 'history_screen.dart';
 
 /// Všechny služby appky na jednom místě; obrazovky si je berou přes [App.of].
@@ -90,6 +92,7 @@ class BehanekApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: buildTheme(),
           locale: locale,
+          navigatorObservers: [TelemetryNavigatorObserver(kScreenRoutes)],
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: const [
             AppLocalizations.delegate,

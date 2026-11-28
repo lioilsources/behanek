@@ -99,7 +99,14 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Semmilyen adat nem hagyja el a telefonodat. A Běhánekben nincs fiók, szerver, analitika és reklám.';
+      'A futásaid, útvonalaid és a helyzeted a telefonodon maradnak. A Běhánekben nincs fiók és reklám, és nem használ harmadik féltől származó analitikát.';
+
+  @override
+  String get settings_stats => 'Névtelen használati statisztika';
+
+  @override
+  String get settings_statsHelp =>
+      'Mely képernyőket és funkciókat használod, soha a helyzetedet vagy az útvonalaidat. Segít jobbá tenni a Běháneket.';
 
   @override
   String get map_satellite => 'Műhold';

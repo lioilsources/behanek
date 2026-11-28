@@ -30,7 +30,9 @@
   "settings_stepsPerMin": "{steps} passos/min",
   "settings_mapLayer": "Mapa",
   "settings_backup": "Backup de todas as corridas (ZIP de GPX)",
-  "settings_privacy": "Nenhum dado sai do seu celular. O Běhánek não tem conta, servidor, rastreamento nem anúncios.",
+  "settings_privacy": "Suas corridas, rotas e localização ficam no seu celular. O Běhánek não tem conta nem anúncios e não usa análises de terceiros.",
+  "settings_stats": "Estatísticas de uso anônimas",
+  "settings_statsHelp": "Quais telas e funções são usadas, nunca sua localização ou suas rotas. Ajuda a melhorar o Běhánek.",
 
   "map_satellite": "Satélite",
   "map_topo": "Topográfico",

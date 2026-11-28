@@ -99,7 +99,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Không dữ liệu nào rời khỏi điện thoại của bạn. Běhánek không có tài khoản, máy chủ, phân tích hay quảng cáo.';
+      'Các buổi chạy, lộ trình và vị trí của bạn chỉ ở trên điện thoại. Běhánek không có tài khoản, không quảng cáo và không dùng phân tích của bên thứ ba.';
+
+  @override
+  String get settings_stats => 'Thống kê sử dụng ẩn danh';
+
+  @override
+  String get settings_statsHelp =>
+      'Những màn hình và tính năng nào được dùng, không bao giờ gửi vị trí hay lộ trình. Giúp cải thiện Běhánek.';
 
   @override
   String get map_satellite => 'Vệ tinh';

@@ -289,8 +289,20 @@ abstract class AppLocalizations {
   /// No description provided for @settings_privacy.
   ///
   /// In en, this message translates to:
-  /// **'No data ever leaves your phone. Běhánek has no account, no server, no analytics and no ads.'**
+  /// **'Your runs, routes and location stay on your phone. Běhánek has no account and no ads, and uses no third-party analytics.'**
   String get settings_privacy;
+
+  /// No description provided for @settings_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous usage statistics'**
+  String get settings_stats;
+
+  /// No description provided for @settings_statsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Which screens and features get used, never your location or routes. Helps improve Běhánek.'**
+  String get settings_statsHelp;
 
   /// No description provided for @map_satellite.
   ///

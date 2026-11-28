@@ -97,7 +97,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'データがスマホの外に出ることはありません。Běhánekにはアカウントもサーバーも分析も広告もありません。';
+      'ランの記録、ルート、位置情報はスマホの中だけに残ります。Běhánekにはアカウントも広告もなく、第三者の分析ツールも使いません。';
+
+  @override
+  String get settings_stats => '匿名の利用統計';
+
+  @override
+  String get settings_statsHelp =>
+      'どの画面や機能が使われているかだけで、位置情報やルートは送りません。Běhánekの改善に役立ちます。';
 
   @override
   String get map_satellite => '衛星';

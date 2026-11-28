@@ -99,7 +99,14 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get settings_privacy =>
-      'Nessun dato lascia il tuo telefono. Běhánek non ha account, server, tracciamento né pubblicità.';
+      'Corse, percorsi e posizione restano sul tuo telefono. Běhánek non ha account né pubblicità e non usa analisi di terze parti.';
+
+  @override
+  String get settings_stats => 'Statistiche d\'uso anonime';
+
+  @override
+  String get settings_statsHelp =>
+      'Quali schermate e funzioni vengono usate, mai la tua posizione o i tuoi percorsi. Aiuta a migliorare Běhánek.';
 
   @override
   String get map_satellite => 'Satellite';

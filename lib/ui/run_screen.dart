@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:ol1n_telemetry/ol1n_telemetry.dart';
 
 import '../core/settings.dart';
 import '../core/units.dart';
@@ -36,6 +37,11 @@ class _RunScreenState extends State<RunScreen> {
 
   Future<void> _warmUp() async {
     final a = await _run.warmUp();
+    if (a == LocationAccess.serviceOff) {
+      Telemetry.errorShown('location_off');
+    } else if (a != LocationAccess.granted) {
+      Telemetry.errorShown('location_denied');
+    }
     if (mounted) setState(() => _access = a);
   }
 
@@ -269,7 +275,10 @@ class _RunScreenState extends State<RunScreen> {
           Expanded(
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(88)),
-              onPressed: () => setState(() => _showMap = !_showMap),
+              onPressed: () {
+                if (!_showMap) Telemetry.feature('live_map');
+                setState(() => _showMap = !_showMap);
+              },
               child: Text(_showMap ? l.run_numbers : l.run_map),
             ),
           ),
@@ -340,7 +349,9 @@ class _RunScreenState extends State<RunScreen> {
             if (id == null) {
               nav.pop();
             } else {
-              nav.pushReplacement(MaterialPageRoute(builder: (_) => DetailScreen(runId: id)));
+              nav.pushReplacement(MaterialPageRoute(
+                  settings: const RouteSettings(name: '/detail'),
+                  builder: (_) => DetailScreen(runId: id)));
             }
           },
           child: Text(l.run_save, style: const TextStyle(fontSize: 28)),
